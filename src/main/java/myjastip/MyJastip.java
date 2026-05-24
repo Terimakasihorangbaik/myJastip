@@ -23,15 +23,16 @@ public class MyJastip extends Application {
 	}
 	
 	private Parent createContent() {
-        return new StackPane(new Text("Sistem Jastip dari NetBeans!!!"));
+        return new StackPane(new Text("Sistem Jastip"));
     }
 	
-	public static void main(String[] args) throws Exception {				
+	public static void main(String[] args) {	
+		System.out.println("Hello World");
 //		DatabaseUtil.testDB();
-//		Perlu PostgreSQL
+//		Test PostgreSQL Database
 		
-		Application.launch(MyJastip.class, args);
-		
+//		Application.launch(MyJastip.class, args);
+//		Uncomment jika sudah setup JAvaFX
 		
 	}
 
