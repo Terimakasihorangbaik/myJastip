@@ -4,15 +4,17 @@ public class Location {
     private String location;
     private double latitude;
     private double longtitude;
-
-    public void setLocation(double latitude, double longtitude) {
-        this.latitude = lat;
-        this.longtitude = long;
+    
+    public Location(String location, double latitude, double longtitude) {
+        this.location = location;
+        this.latitude = latitude;
+        this.longtitude = longtitude;
     }
 
     public String getLocation() {
         return "latitude: " + latitude + ", longtitude: " + longtitude;
     }
+}
     
     
 
