@@ -40,6 +40,8 @@ public class MyJastip extends Application {
 			System.out.println(i.getItemDetails());
 		}
 
+		System.exit(0);
+
 //		Application.launch(MyJastip.class, args); // Untuk membuka JavaFx
 
         }
