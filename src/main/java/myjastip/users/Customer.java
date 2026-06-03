@@ -38,7 +38,7 @@ public class Customer extends User implements Payable {
 	}
 
 	public void addToCart(Item item, int qty) {
-
+		cart.addItem(item, qty);
 	}
 
 	public void cancelOrder(String orderld) {

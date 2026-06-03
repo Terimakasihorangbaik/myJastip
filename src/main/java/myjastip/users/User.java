@@ -1,7 +1,5 @@
 package myjastip.users;
 
-import myjastip.payment.Payable;
-
 public abstract class User {
 	private String userId;
 	private String name;
@@ -18,11 +16,7 @@ public abstract class User {
 	}
 
 	public void login() {
-		
-	}
-	
-	public void register() {
-		
+
 	}
 	
 	public void logout() {

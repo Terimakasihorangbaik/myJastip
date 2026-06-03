@@ -14,10 +14,11 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class DatabaseUtil {
-    public static Connection getConnection(String password) throws SQLException {
-        String URL = "jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?user=postgres.stmeucoddhqzfblbtrne&password=" + password;
+    public static Connection getConnection() throws SQLException {
+        String URL = "jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?user=postgres.stmeucoddhqzfblbtrne&password=" + System.getenv("SUPABASE_DB_PASSWORD");
         return DriverManager.getConnection(URL);
     }
+
 
     public static void insertItems(ArrayList<Item> items, Connection connection) {
         try {
