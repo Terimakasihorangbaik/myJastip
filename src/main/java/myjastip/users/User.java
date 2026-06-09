@@ -22,5 +22,20 @@ public abstract class User {
 	public void logout() {
 		
 	}
-	
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
 }

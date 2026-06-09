@@ -53,8 +53,12 @@ public class Customer extends User implements Payable {
 
 	}
 
-	public void getAddress(String address) {
+	public String getAddress() {
+		return address;
+	}
 
+	public Cart getCart() {
+		return cart;
 	}
 
 	public void setAddress(String address) {

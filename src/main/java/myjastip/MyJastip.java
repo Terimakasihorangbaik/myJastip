@@ -1,13 +1,12 @@
 package myjastip;
 
 import javafx.application.Application;
-import myjastip.app.MyJastipApplication;
+import myjastip.app.MyJastipWindow;
 import myjastip.storage.Item;
 import myjastip.users.User;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 /*
 
@@ -16,16 +15,10 @@ VM Arguments untuk JavaFX:
 
 */
 
-
 public class MyJastip {
 
 	public static void main(String[] args) throws Exception {
-//		Application.launch(MyJastipApplication.class, args); // Untuk membuka JavaFx
 
-		Scanner sc = new Scanner(System.in);
-//		System.out.print("Masukkan Password Supabase: ");
-
-//		final String PASSWORD = sc.nextLine();
  		try {
 			Connection connection = DatabaseUtil.getConnection();
 
@@ -47,8 +40,8 @@ public class MyJastip {
 			System.out.println("Gagal menghubungkan Database");
 		}
 
+//		Application.launch(MyJastipWindow.class, args); // Untuk membuka JavaFx
 
-//		users.get(0).login();
 
 		System.exit(0);
 

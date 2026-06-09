@@ -1,4 +1,5 @@
 package myjastip.app;
 
-class JastiperUI {
+class StoreUI {
+
 }
