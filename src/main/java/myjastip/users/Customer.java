@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class Customer extends User implements Payable {
 	private String address;
-	private Cart cart;
+	private Cart cart = new Cart();
 
 	public Customer() {
 		super();
@@ -44,6 +44,8 @@ public class Customer extends User implements Payable {
 	public void addToCart(Item item, int qty) {
 		cart.addItem(item, qty);
 	}
+
+
 
 	public void cancelOrder(String orderId) {
 

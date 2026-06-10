@@ -5,7 +5,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import myjastip.storage.CartItem;
 import myjastip.users.Customer;
 import myjastip.users.User;
 
@@ -18,6 +21,37 @@ public class DashboardView {
     public DashboardView(MyJastipWindow appWindow) {
         this.appWindow = appWindow;
         createDashboardScene();
+    }
+
+    public VBox cartsMenu() {
+        VBox cartBox = new VBox(12);
+        for (CartItem cartItem : ((Customer) user).getCart().getCartItems()) {
+            HBox itemBox = new HBox(12);
+
+            Label itemLabel = new Label(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity());
+//            Label itemQty = new Label(cartItem.getQuantity());
+            Button itemQtyAdd = new Button("+");
+            Button itemQtyMin = new Button("-");
+            itemQtyAdd.setOnAction(e -> {
+                cartItem.addQuanitity(1);
+                itemLabel.setText(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity());
+            });
+            itemQtyMin.setOnAction(e -> {
+                if (cartItem.getQuantity() > 1) {
+                    cartItem.subtractQuanitity(1);
+                    itemLabel.setText(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity());
+                } else {
+                    ((Customer) user).getCart().removeItem(cartItem);
+                    cartBox.getChildren().removeIf(i -> i.equals(itemBox));
+                }
+            });
+
+            itemBox.getChildren().addAll(itemLabel, itemQtyAdd, itemQtyMin);
+
+            cartBox.getChildren().add(itemBox);
+        }
+
+        return cartBox;
     }
 
     public void createDashboardScene() {
@@ -33,8 +67,6 @@ public class DashboardView {
 
         Label infoLabel = new Label("Ini adalah halaman Dashboard Utama.");
 
-
-
         Button logoutButton = new Button("Keluar / Logout");
         logoutButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
 
@@ -43,8 +75,15 @@ public class DashboardView {
         if (user instanceof Customer) {
             Button storeButton = new Button("Toko");
             storeButton.setOnAction(e -> appWindow.showStoreScene((Customer) user));
-            layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, storeButton, logoutButton);
 
+            ScrollPane storeScrollPane = new ScrollPane();
+            storeScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            storeScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+            storeScrollPane.setFitToWidth(true);
+            storeScrollPane.setContent(cartsMenu());
+
+            Button orderButton = new Button("Buat Pesanan");
+            layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, storeButton, storeScrollPane, orderButton, logoutButton);
         }
         else {
             layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, logoutButton);

@@ -63,6 +63,12 @@ public class StoreView {
         Label itemCategories = new Label("Kategori: " + String.join(", ", item.getCategories()));
         itemCategories.setWrapText(true);
         Button orderButton = new Button("Pesan");
+        orderButton.setOnAction(e -> {
+                customer.addToCart(item, 1);
+                orderButton.setDisable(true);
+            }
+        );
+
 
 
 //        itemPane.getChildren().addAll(sp);
