@@ -27,7 +27,7 @@ public class MyJastip {
 			ArrayList<Item> items = new ArrayList<>();
 			ArrayList<User> users = new ArrayList<>();
 
-			DatabaseUtil.insertItems(items, connection);
+			DatabaseUtil.insertItems(items);
 
 			for (Item i : items) {
 				System.out.println(i.getItemDetails());

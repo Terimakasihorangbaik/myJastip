@@ -88,7 +88,7 @@ public class AuthView {
         registerButton.setOnAction(e -> appWindow.showLoginScene());
 
         layout.getChildren().addAll(titleLabel, usernameInput, passwordInput, registerButton, loginLink);
-        registerScene = new Scene(layout, 600, 400);
+        registerScene = new Scene(layout, 1200, 800);
     }
 
     public Scene getLoginScene() {

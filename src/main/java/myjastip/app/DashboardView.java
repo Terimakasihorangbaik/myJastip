@@ -33,13 +33,23 @@ public class DashboardView {
 
         Label infoLabel = new Label("Ini adalah halaman Dashboard Utama.");
 
+
+
         Button logoutButton = new Button("Keluar / Logout");
         logoutButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
 
         logoutButton.setOnAction(e -> appWindow.showLoginScene());
 
-        layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, logoutButton);
-        dashboardScene = new Scene(layout, 600, 400);
+        if (user instanceof Customer) {
+            Button storeButton = new Button("Toko");
+            storeButton.setOnAction(e -> appWindow.showStoreScene((Customer) user));
+            layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, storeButton, logoutButton);
+
+        }
+        else {
+            layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, logoutButton);
+        }
+        dashboardScene = new Scene(layout, 1200, 800);
     }
 
     public Scene getDashboardScene() {

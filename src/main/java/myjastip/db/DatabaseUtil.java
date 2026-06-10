@@ -71,8 +71,9 @@ public class DatabaseUtil {
         return new Customer();
     }
 
-    public static void insertItems(ArrayList<Item> items, Connection connection) {
+    public static void insertItems(ArrayList<Item> items) {
         try {
+            Connection connection = getConnection();
             Statement statement = connection.createStatement();
             String query = "SELECT * FROM \"items\";";
             var resultSet = statement.executeQuery(query);
@@ -83,22 +84,23 @@ public class DatabaseUtil {
                 double basePrice = resultSet.getDouble("base_price");
                 String storeLocationName = resultSet.getString("store_location_name");
                 Array categories = resultSet.getArray("categories");
+                String imageUrl = resultSet.getString("image_url");
 
 
                 if (categories != null) {
                     String[] javaArray = (String[]) categories.getArray();
                     ArrayList<String> itemCategories = new ArrayList<String>(Arrays.asList(javaArray));
-                    items.add(new Item(itemId, itemName, itemDescription, basePrice, storeLocationName, itemCategories));
+                    items.add(new Item(itemId, itemName, itemDescription, basePrice, storeLocationName, itemCategories, imageUrl));
                 } else {
-                    items.add(new Item(itemId, itemName, itemDescription, basePrice, storeLocationName, new ArrayList<String>()));
+                    items.add(new Item(itemId, itemName, itemDescription, basePrice, storeLocationName, new ArrayList<String>(), imageUrl));
                 }
 
             }
         } catch (PSQLException e) {
-            System.out.println("Error pada PSQLException");
+            System.out.println("Error pada PSQLException pada insertItems()");
             System.exit(0);
         } catch (Exception e) {
-            System.out.println("Terjadi Error");
+            System.out.println("Terjadi Error pada insertItems()");
             System.exit(0);
 
         }
