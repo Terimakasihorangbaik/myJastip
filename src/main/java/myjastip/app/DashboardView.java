@@ -7,11 +7,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import myjastip.db.DatabaseUtil;
+import myjastip.payment.Order;
 import myjastip.storage.CartItem;
 import myjastip.users.Customer;
 import myjastip.users.User;
+
+import java.util.ArrayList;
 
 public class DashboardView {
 
@@ -60,6 +64,37 @@ public class DashboardView {
         return cartBox;
     }
 
+    public VBox orderMenu() {
+        VBox orderBox = new VBox(12);
+        ArrayList<Order> orders = new ArrayList<>();
+        DatabaseUtil.insertOrders(orders);
+
+        for (Order order : orders) {
+            HBox orderMenu = new HBox(12);
+
+            Label destinationLabel = new Label("Tujuan: " + order.getLocation().getLocationName());
+            Label recieverLabel = new Label("Penerima: " + order.getRecieverId());
+            Label itemLabel = new Label("Lokasi: " + order.getLocation());
+
+            HBox rightControl = new HBox();
+            HBox.setHgrow(rightControl, Priority.ALWAYS);
+            rightControl.setAlignment(Pos.CENTER_RIGHT);
+            Button acceptButton = new Button("Terima Pesanan");
+            rightControl.getChildren().add(acceptButton);
+
+            VBox orderSpec = new VBox();
+            orderSpec.getChildren().addAll(destinationLabel, recieverLabel, itemLabel);
+
+            orderMenu.getChildren().addAll(orderSpec, rightControl);
+
+            orderBox.getChildren().add(orderMenu);
+
+        }
+
+        return orderBox;
+    }
+
+
     public void createDashboardScene() {
         VBox layout = new VBox(20);
         layout.setPadding(new Insets(40));
@@ -96,7 +131,7 @@ public class DashboardView {
                 if (!(customer.getCart().isCartEmpty())) {
                     DatabaseUtil.insertOrder(
                             "Sending",
-                            customer.getOrderLocation().getLocation(),
+                            customer.getOrderLocation().getLocationName(),
                             customer.getOrderLocation().getLatitude(), customer.getOrderLocation().getLongitude(),
                             customer.getCart().calculateTotalPrice(), customer.getCart().calculateTotalPrice() * 0.1, 10_000.0,
                             customer.getUserId(),
@@ -114,7 +149,13 @@ public class DashboardView {
             layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, storeButton, storeScrollPane, orderButton, logoutButton);
         }
         else {
-            layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, logoutButton);
+            ScrollPane orderScrollPane = new ScrollPane();
+            orderScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            orderScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+            orderScrollPane.setFitToWidth(true);
+            orderScrollPane.setContent(orderMenu());
+
+            layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, orderScrollPane, logoutButton);
         }
         dashboardScene = new Scene(layout, 1200, 800);
     }

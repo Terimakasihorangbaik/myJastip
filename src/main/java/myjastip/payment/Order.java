@@ -12,6 +12,7 @@ public class Order {
 	private double totalItemPrice;
 	private double transportationFee;
 	private double serviceFee;
+	private String recieverId;
 
 	private double totalBill;
 	private Cart orderedCart;
@@ -96,5 +97,13 @@ public class Order {
 
 	public void setOrderedCart(Cart orderedCart) {
 		this.orderedCart = orderedCart;
+	}
+
+	public String getRecieverId() {
+		return recieverId;
+	}
+
+	public void setRecieverId(String recieverId) {
+		this.recieverId = recieverId;
 	}
 }

@@ -37,8 +37,8 @@ public class StoreView {
     public VBox itemPane(Item item) {
         VBox itemBox = new VBox();
 //        itemPane.setStyle("-fx-background-color: black;");
-        itemBox.setMaxWidth(100);
-        itemBox.setPrefSize(100,100);
+        itemBox.setMaxWidth(200);
+//        itemBox.setPrefSize(100,100);
 //        Circle circle = new Circle(50,Color.BLUE);
 //        circle.relocate(20, 20);
 //        Rectangle rectangle = new Rectangle(100,100, Color.RED);
@@ -56,11 +56,13 @@ public class StoreView {
 
         Label itemName = new Label(item.getItemName());
         itemName.setWrapText(true);
+        itemName.setStyle("-fx-font-weight: bold;");
         Label itemPrice = new Label("Rp" + item.getBasePrice());
         itemPrice.setWrapText(true);
         Label itemStoreLocation = new Label(item.getStoreLocationName());
         itemStoreLocation.setWrapText(true);
         Label itemCategories = new Label("Kategori: " + String.join(", ", item.getCategories()));
+        itemCategories.setPrefWidth(200);
         itemCategories.setWrapText(true);
         Button orderButton = new Button("Pesan");
         orderButton.setOnAction(e -> {
@@ -81,7 +83,8 @@ public class StoreView {
         tilePane.setHgap(10);
         tilePane.setVgap(10);
         tilePane.setPadding(new Insets(15));
-//        tilePane.setPrefColumns(4);
+        tilePane.setPrefColumns(4);
+        tilePane.setPrefWidth(850);
         tilePane.setTileAlignment(Pos.CENTER);
 
         for (Item i : items) {
