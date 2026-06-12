@@ -9,6 +9,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import myjastip.db.DatabaseUtil;
 import myjastip.payment.Order;
 import myjastip.storage.CartItem;
@@ -35,9 +36,11 @@ public class DashboardView {
 
             Label itemLabel = new Label(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity());
             Button itemQtyAdd = new Button("+");
+            itemQtyAdd.setFont(new Font("Consolas", 12));
             itemQtyAdd.setStyle("-fx-background-color: white; -fx-border-color: green; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
 
             Button itemQtyMin = new Button("-");
+            itemQtyMin.setFont(new Font("Consolas", 12));
             itemQtyMin.setStyle("-fx-background-color: white; -fx-border-color: red; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
 
             itemLabel.setMinWidth(100);
@@ -73,7 +76,7 @@ public class DashboardView {
             HBox orderMenu = new HBox(12);
 
             Label destinationLabel = new Label("Tujuan: " + order.getLocation().getLocationName());
-            Label recieverLabel = new Label("Penerima: " + order.getRecieverId());
+            Label recieverLabel = new Label("Penerima: " + DatabaseUtil.getUser(order.getRecieverId()));
             Label itemLabel = new Label("Lokasi: " + order.getLocation());
 
             HBox rightControl = new HBox();
@@ -116,7 +119,6 @@ public class DashboardView {
         if (user instanceof Customer) {
             Button storeButton = new Button("Toko");
             storeButton.setStyle("-fx-background-color: #88FF74; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
-
             storeButton.setOnAction(e -> appWindow.showStoreScene((Customer) user));
 
             ScrollPane storeScrollPane = new ScrollPane();
@@ -126,6 +128,8 @@ public class DashboardView {
             storeScrollPane.setContent(cartsMenu());
 
             Button orderButton = new Button("Buat Pesanan");
+            orderButton.setStyle("-fx-background-color: #00FF00; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
+
             orderButton.setOnAction(e -> {
                 Customer customer = (Customer) user;
                 if (!(customer.getCart().isCartEmpty())) {
@@ -136,7 +140,6 @@ public class DashboardView {
                             customer.getCart().calculateTotalPrice(), customer.getCart().calculateTotalPrice() * 0.1, 10_000.0,
                             customer.getUserId(),
                             customer.getCart()
-
                     );
                     customer.getCart().emptyCart();
                     storeScrollPane.setContent(cartsMenu());
@@ -146,7 +149,11 @@ public class DashboardView {
                 }
             });
 
-            layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, storeButton, storeScrollPane, orderButton, logoutButton);
+            Button orderViewButton = new Button("Lihat Pesanan");
+            orderViewButton.setStyle("-fx-background-color: #80BEFF; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
+            orderViewButton.setOnAction(e -> appWindow.showCustomerOrdersScene((Customer) user));
+
+            layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, storeButton, storeScrollPane, orderButton, orderViewButton, logoutButton);
         }
         else {
             ScrollPane orderScrollPane = new ScrollPane();

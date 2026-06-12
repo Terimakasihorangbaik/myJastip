@@ -13,6 +13,7 @@ public class MyJastipWindow extends Application {
     private AuthView authView;
     private DashboardView dashboardView;
     private StoreView storeView;
+    private CustomerOrdersView customerOrdersView;
 
     @Override
     public void start(Stage stage) {
@@ -25,6 +26,7 @@ public class MyJastipWindow extends Application {
         this.authView = new AuthView(this);
         this.dashboardView = new DashboardView(this);
         this.storeView = new StoreView(this);
+        this.customerOrdersView = new CustomerOrdersView(this);
 
         showLoginScene();
         this.primaryStage.show();
@@ -46,6 +48,11 @@ public class MyJastipWindow extends Application {
     public void showStoreScene(Customer customer) {
         storeView.setCustomer(customer);
         primaryStage.setScene(storeView.getStoreScene());
+    }
+
+    public void showCustomerOrdersScene(Customer customer) {
+        customerOrdersView.setCustomer(customer);
+        primaryStage.setScene(customerOrdersView.getCustomerOrdersScene());
     }
 
 }
