@@ -10,6 +10,7 @@ public class Item {
 	private double basePrice;
 	private String storeLocationName;
 	private ArrayList<String> categories;
+        
 
 	public Item(String itemId, String itemName, String description, double basePrice, String storeLocationName, ArrayList<String> categories) {
 		this.itemId = itemId;
@@ -46,4 +47,9 @@ public class Item {
 	public String getItemId() {
 		return itemId;
 	}
+
+    public String getItemName() {
+        return itemName;
+    }
+        
 }

@@ -5,12 +5,13 @@ public class Order {
 	private String orderStatus;
 //	private Location location;
 	private double totalItemPrice;
-	private double transporationFee;
-	private double serviceFree;
+	private double transportationFee;
+	private double serviceFee;
 	private double totalBill;
 	
 	public double calculateTotalBill() {
-		return 0.0;
+                totalBill = totalItemPrice + transportationFee + serviceFee;
+		return totalBill;
 	}
 	
 }
