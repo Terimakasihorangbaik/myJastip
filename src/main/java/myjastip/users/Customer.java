@@ -1,5 +1,6 @@
 package myjastip.users;
 
+import myjastip.location.Location;
 import myjastip.payment.Order;
 import myjastip.payment.Payable;
 import myjastip.payment.Payment;
@@ -10,16 +11,18 @@ import java.util.ArrayList;
 
 public class Customer extends User implements Payable {
 	private String address;
-	private Cart cart;
+	private Cart cart = new Cart();
+	private Location orderLocation = new Location();
 
 	public Customer() {
 		super();
 	}
 
-	public Customer(String userId, String name, String email, String password, String phoneNumber, String address, Cart cart) {
+	public Customer(String userId, String name, String email, String password, String phoneNumber, String address) {
 		super(userId, name, email, password, phoneNumber);
 		this.address = address;
-		this.cart = cart;
+		this.cart = new Cart();
+		this.orderLocation = new Location();
 	}
 
 	@Override
@@ -45,13 +48,15 @@ public class Customer extends User implements Payable {
 		cart.addItem(item, qty);
 	}
 
-	public void cancelOrder(String orderld) {
+
+
+	public void cancelOrder(String orderId) {
 
 	}
 
-	public Order createOrder() {
-		return new Order();
-	}
+//	public Order createOrder() {
+//		return new Order();
+//	}
 
 	public void rate(Jastiper service, int value) {
 
@@ -69,7 +74,7 @@ public class Customer extends User implements Payable {
 
 	}
 
-	public void confirmReceipt(String orderld) {
+	public void confirmReceipt(String orderId) {
 
 	}
 
@@ -77,7 +82,21 @@ public class Customer extends User implements Payable {
 
 	}
 
-	public void refund(String orderld) {
+	public void refund(String orderId) {
 
 	}
+
+	public void setCart(Cart cart) {
+		this.cart = cart;
+	}
+
+	public Location getOrderLocation() {
+		return orderLocation;
+	}
+
+	public void setOrderLocation(Location orderLocation) {
+		this.orderLocation = orderLocation;
+	}
+
+
 }

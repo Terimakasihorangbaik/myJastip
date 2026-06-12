@@ -3,6 +3,7 @@ package myjastip;
 import javafx.application.Application;
 import myjastip.app.MyJastipWindow;
 import myjastip.db.DatabaseUtil;
+import myjastip.payment.Order;
 import myjastip.storage.Item;
 import myjastip.users.User;
 
@@ -25,19 +26,27 @@ public class MyJastip {
 			Connection connection = DatabaseUtil.getConnection();
 
 			ArrayList<Item> items = new ArrayList<>();
-			ArrayList<User> users = new ArrayList<>();
+//			ArrayList<User> users = new ArrayList<>();
+			ArrayList<Order> orders = new ArrayList<>();
 
-			DatabaseUtil.insertItems(items, connection);
+			DatabaseUtil.insertItems(items);
 
 			for (Item i : items) {
 				System.out.println(i.getItemDetails());
 			}
 
-			DatabaseUtil.insertUsers(users, connection);
+//			DatabaseUtil.insertUsers(users, connection);
 
-			for (User u : users) {
-				System.out.println(u.toString());
+//			for (User u : users) {
+//				System.out.println(u.toString());
+//			}
+
+			DatabaseUtil.insertOrders(orders);
+
+			for (Order o : orders) {
+				System.out.println(o.getTotalItemPrice());
 			}
+
 		} catch (Exception e) {
 			System.out.println("Gagal menghubungkan Database");
 		}
