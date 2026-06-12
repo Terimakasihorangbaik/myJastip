@@ -32,7 +32,8 @@ public class Order {
 	}
 
 	public double calculateTotalBill() {
-		return 0.0;
+                totalBill = totalItemPrice + transportationFee + serviceFee;
+		return totalBill;
 	}
 
 	public String getOrderId() {

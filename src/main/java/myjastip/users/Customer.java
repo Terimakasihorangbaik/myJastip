@@ -27,25 +27,39 @@ public class Customer extends User implements Payable {
 
 	@Override
 	public void payment(double amount) {
-
+            Payment payment = new Payment();
+            payment.processPayment(amount, "Sukses");
+            payment.getReceipt();
+            paymentHistory.add(payment);
 	}
 
 	@Override
 	public void refund(long orderId) {
-
+            System.out.println("Refund Order : " + orderId);
 	}
 
 	@Override
 	public ArrayList<Payment> getPaymentHistory() {
-		return null;
+		return paymentHistory;
 	}
 
 	public ArrayList<Item> searchItem(String keyword) {
-		return new ArrayList<>();
+            ArrayList<Item> hasilCari = new ArrayList<>();
+            for(Item item : listItem ){
+                if (item.getItemName().toLowerCase().contains(keyword.toLowerCase())) {
+
+                    hasilCari.add(item);
+                }
+            }
+            return hasilCari;
+           
 	}
 
 	public void addToCart(Item item, int qty) {
 		cart.addItem(item, qty);
+                System.out.println("Nama Barang = " + item);
+                System.out.println("Jumlah barang = " + qty);
+                System.out.println("Berhasil dimasukan ke Keranjang Belanja");
 	}
 
 
@@ -71,7 +85,7 @@ public class Customer extends User implements Payable {
 	}
 
 	public void setAddress(String address) {
-
+            this.address = address;
 	}
 
 	public void confirmReceipt(String orderId) {
@@ -79,23 +93,13 @@ public class Customer extends User implements Payable {
 	}
 
 	public void pay(double amount) {
-
+            Payment payment = new Payment();
+            payment.processPayment(amount, "Sukses");
+            paymentHistory.add(payment);
 	}
 
-	public void refund(String orderId) {
-
-	}
-
-	public void setCart(Cart cart) {
-		this.cart = cart;
-	}
-
-	public Location getOrderLocation() {
-		return orderLocation;
-	}
-
-	public void setOrderLocation(Location orderLocation) {
-		this.orderLocation = orderLocation;
+	public void refund(String orderld) {
+            System.out.println("Refund order : " + orderld);
 	}
 
 
