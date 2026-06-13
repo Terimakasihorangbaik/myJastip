@@ -20,17 +20,15 @@ public class CustomerOrdersView {
     private final MyJastipWindow appWindow;
     private Scene customerOrdersScene;
     private Customer customer;
-    ArrayList<Order> orders = new ArrayList<>();
 
     public CustomerOrdersView(MyJastipWindow appWindow) {
         this.appWindow = appWindow;
-        createCustomerOrdersScene();
     }
     public VBox orderHistoryMenu() {
         VBox orderBox = new VBox(12);
 
-        for (int i = orders.size() - 1; i >= 0; i--) {
-            Order order = orders.get(i);
+        for (int i = customer.getOrders().size() - 1; i >= 0; i--) {
+            Order order = customer.getOrders().get(i);
             HBox orderMenu = new HBox(12);
 
             Label destinationLabel = new Label("Tujuan: " + order.getLocation().getLocationName());
@@ -46,9 +44,8 @@ public class CustomerOrdersView {
                 cancelOrderButton.setDisable(true);
             }
             cancelOrderButton.setOnAction(e -> {
-                DatabaseUtil.changeOrderStatus(order.getOrderId(), OrderStatus.CANCELLED);
+                customer.cancelOrder(order);
                 cancelOrderButton.setDisable(true);
-                DatabaseUtil.insertOrdersByReceiverId(orders, customer.getUserId());
                 statusLabel.setText("Status: " + OrderStatus.CANCELLED);
             });
 
@@ -61,7 +58,7 @@ public class CustomerOrdersView {
                 DatabaseUtil.changeOrderStatus(order.getOrderId(), OrderStatus.CONFIRMED);
                 order.setOrderStatus(OrderStatus.CONFIRMED);
                 cancelOrderButton.setDisable(true);
-                DatabaseUtil.insertOrdersByReceiverId(orders, customer.getUserId());
+                DatabaseUtil.insertOrdersByReceiverId(customer.getOrders(), customer.getUserId());
                 statusLabel.setText("Status: " + OrderStatus.CONFIRMED);
             });
 
@@ -109,8 +106,7 @@ public class CustomerOrdersView {
 
     public void setCustomer(Customer customer) {
         this.customer = customer;
-        DatabaseUtil.insertOrdersByReceiverId(orders, customer.getUserId());
-
+        DatabaseUtil.insertOrdersByReceiverId(customer.getOrders(), customer.getUserId());
     }
 
 }

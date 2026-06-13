@@ -27,7 +27,7 @@ public class DashboardView {
 
     public DashboardView(MyJastipWindow appWindow) {
         this.appWindow = appWindow;
-        createDashboardScene();
+//        createDashboardScene();
     }
 
     public VBox cartsMenu() {
@@ -135,21 +135,8 @@ public class DashboardView {
 
             orderButton.setOnAction(e -> {
                 Customer customer = (Customer) user;
-                if (!(customer.getCart().isCartEmpty())) {
-                    DatabaseUtil.insertOrder(
-                            OrderStatus.PENDING,
-                            customer.getOrderLocation().getLocationName(),
-                            customer.getOrderLocation().getLatitude(), customer.getOrderLocation().getLongitude(),
-                            customer.getCart().calculateTotalPrice(), customer.getCart().calculateTotalPrice() * 0.1, 10_000.0,
-                            customer.getUserId(),
-                            customer.getCart()
-                    );
-                    customer.getCart().emptyCart();
-                    storeScrollPane.setContent(cartsMenu());
-                    System.out.println("Pesanan telah dibuat");
-                } else {
-                    System.out.println("Pesanan Kosong");
-                }
+                customer.createOrder();
+                ((VBox) storeScrollPane.getContent()).getChildren().clear();
             });
 
             Button orderViewButton = new Button("Lihat Pesanan");

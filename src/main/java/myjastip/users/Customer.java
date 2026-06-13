@@ -1,7 +1,9 @@
 package myjastip.users;
 
+import myjastip.db.DatabaseUtil;
 import myjastip.location.Location;
 import myjastip.payment.Order;
+import myjastip.payment.OrderStatus;
 import myjastip.payment.Payable;
 import myjastip.payment.Payment;
 import myjastip.storage.Cart;
@@ -15,20 +17,23 @@ import java.util.Map;
 public class Customer extends User implements Payable {
 	private String address;
 
-	private Cart cart = new Cart();
-	private Location orderLocation = new Location();
+	private Cart cart;
+	private Location orderLocation;
 	private ArrayList<Payment> paymentHistory;
+	private ArrayList<Order> orders;
 
 	public Customer() {
-            super();
-        }
+		super();
+	}
 
-	public Customer(String userId, String name, String email, String password, String phoneNumber, String address) {
+
+	public Customer(String userId, String name, String email, String password, String phoneNumber, String address, Cart cart, Location orderLocation, ArrayList<Payment> paymentHistory, ArrayList<Order> orders) {
 		super(userId, name, email, password, phoneNumber);
 		this.address = address;
-		this.cart = new Cart();
-		this.orderLocation = new Location();
-        this.paymentHistory = new ArrayList<>();
+		this.cart = cart;
+		this.orderLocation = orderLocation;
+		this.paymentHistory = paymentHistory;
+		this.orders = orders;
 	}
 
 	@Override
@@ -76,34 +81,42 @@ public class Customer extends User implements Payable {
 	}
 
 	public void addToCart(Item item, int qty) {
-            try {
+		try {
+			if (qty <= 0) {
+				throw new IllegalArgumentException("Jumlah barang harus lebih dari 0");
+			}
+			cart.addItem(item, qty);
 
-                if (qty <= 0) {
-
-                    throw new IllegalArgumentException("Jumlah barang harus lebih dari 0");
-                }
-
-                cart.addItem(item, qty);
-
-            } catch (IllegalArgumentException e) {
-
-                System.out.println(e.getMessage());
-            }
+		} catch (IllegalArgumentException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
-	public void createOrder(String orderId) {
+	public void createOrder() {
+		// jangan ubah ini
+		if (!cart.isCartEmpty()) {
+			DatabaseUtil.insertOrder(
+					OrderStatus.PENDING,
+					orderLocation.getLocationName(),
+					orderLocation.getLatitude(), orderLocation.getLongitude(),
+					cart.calculateTotalPrice(), cart.calculateTotalPrice() * 0.1, 10_000.0,
+					userId,
+					cart
+			);
+			cart.emptyCart();
+			System.out.println("Pesanan telah dibuat");
+		} else {
+			System.out.println("Pesanan Kosong");
+		}
 
-        if (cart == null) {
-            System.out.println("Keranjang kosong.");
-            return;
-        }
+	}
 
-        }
-
-        public void cancelOrder(String orderId) {
-			// nanti diimplementasi
-
-        }
+	public void cancelOrder(Order order) {
+		// jangan ubah ini
+		DatabaseUtil.changeOrderStatus(order.getOrderId(), OrderStatus.CANCELLED);
+		order.setOrderStatus(OrderStatus.CANCELLED);
+//			DatabaseUtil.insertOrdersByReceiverId(orders, this.getUserId());
+	}
 
 
 	public void rate(Jastiper service, int value) {
@@ -149,5 +162,13 @@ public class Customer extends User implements Payable {
 
 	public void setPaymentHistory(ArrayList<Payment> paymentHistory) {
 		this.paymentHistory = paymentHistory;
+	}
+
+	public ArrayList<Order> getOrders() {
+		return orders;
+	}
+
+	public void setOrders(ArrayList<Order> orders) {
+		this.orders = orders;
 	}
 }

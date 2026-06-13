@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import myjastip.location.Location;
 import myjastip.payment.Order;
 import myjastip.payment.OrderStatus;
+import myjastip.payment.Payment;
 import myjastip.storage.Cart;
 import myjastip.storage.Item;
 import myjastip.users.Customer;
@@ -62,7 +63,7 @@ public class DatabaseUtil {
             if (isJastiper) {
                 return new Jastiper(userId, userName, userEmail, userPassword, userPhoneNumber, 0.0, false, false);
             } else {
-                return new Customer(userId, userName, userEmail, userPassword, userPhoneNumber, userAddress);
+                return new Customer(userId, userName, userEmail, userPassword, userPhoneNumber, userAddress, new Cart(), new Location(), new ArrayList<>(), new ArrayList<>());
             }
 
         } catch (PSQLException e) {
