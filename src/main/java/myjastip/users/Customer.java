@@ -151,7 +151,6 @@ public class Customer extends User implements Payable {
 		this.cart = cart;
 	}
 
-	// Jangan hapus ini pls
 	public Location getOrderLocation() {
 		return orderLocation;
 	}

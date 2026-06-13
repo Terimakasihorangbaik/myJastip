@@ -61,7 +61,7 @@ public class DatabaseUtil {
             boolean isJastiper = resultSet.getBoolean("is_jastiper");
 
             if (isJastiper) {
-                return new Jastiper(userId, userName, userEmail, userPassword, userPhoneNumber, 0.0, false, false);
+                return new Jastiper(userId, userName, userEmail, userPassword, userPhoneNumber, new ArrayList<>());
             } else {
                 return new Customer(userId, userName, userEmail, userPassword, userPhoneNumber, userAddress, new Cart(), new Location(), new ArrayList<>(), new ArrayList<>());
             }
