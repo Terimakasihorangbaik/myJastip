@@ -11,9 +11,12 @@ import java.util.ArrayList;
 
 public class Customer extends User implements Payable {
 	private String address;
+
 	private Cart cart = new Cart();
 	private Location orderLocation = new Location();
-	private ArrayList<Payment> paymentHistory = new ArrayList<>();
+	private ArrayList<Payment> paymentHistory;
+	private ArrayList<Item> listItem;
+
 
 	public Customer() {
 		super();
