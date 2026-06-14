@@ -18,8 +18,8 @@ public class Jastiper extends User {
         super();
     }
 
-    public Jastiper(String userId, String name, String email, String password, String phoneNumber, ArrayList<Order> acceptedOrders) {
-        super(userId, name, email, password, phoneNumber);
+    public Jastiper(String userId, String name, String email, String password, String phoneNumber, double balance, ArrayList<Order> acceptedOrders) {
+        super(userId, name, email, password, phoneNumber, balance);
         this.isVerified = false;
         this.acceptedOrders = acceptedOrders;
     }

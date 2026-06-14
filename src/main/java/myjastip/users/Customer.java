@@ -2,17 +2,14 @@ package myjastip.users;
 
 import myjastip.db.DatabaseUtil;
 import myjastip.location.Location;
-import myjastip.payment.Order;
-import myjastip.payment.OrderStatus;
-import myjastip.payment.Payable;
-import myjastip.payment.Payment;
+import myjastip.payment.*;
 import myjastip.storage.Cart;
 import myjastip.storage.CartItem;
 import myjastip.storage.Item;
+import java.util.UUID;
+
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Customer extends User implements Payable {
 	private String address;
@@ -26,9 +23,8 @@ public class Customer extends User implements Payable {
 		super();
 	}
 
-
-	public Customer(String userId, String name, String email, String password, String phoneNumber, String address, Cart cart, Location orderLocation, ArrayList<Payment> paymentHistory, ArrayList<Order> orders) {
-		super(userId, name, email, password, phoneNumber);
+	public Customer(String userId, String name, String email, String password, String phoneNumber, double balance, String address, Cart cart, Location orderLocation, ArrayList<Payment> paymentHistory, ArrayList<Order> orders) {
+		super(userId, name, email, password, phoneNumber, balance);
 		this.address = address;
 		this.cart = cart;
 		this.orderLocation = orderLocation;
@@ -37,29 +33,19 @@ public class Customer extends User implements Payable {
 	}
 
 	@Override
-	public void payment(double amount) {
-            try {
+	public void pay(Payment payment) throws InsufficientBalanceException {
+		if (balance < payment.getAmount()) {
+			throw new InsufficientBalanceException("Saldo anda belum cukup untuk membayar pembayaran ini!");
+		}
 
-                if (amount <= 0) {
-                    throw new IllegalArgumentException("Nominal pembayaran harus lebih dari 0");
-                }
+		payment.processPayment(payment.getAmount());
+		paymentHistory.add(payment);
+		System.out.println("Pembayaran berhasil.");
 
-                Payment payment = new Payment();
-
-                payment.processPayment(amount, "SUCCESS");
-
-                paymentHistory.add(payment);
-
-                System.out.println("Pembayaran berhasil.");
-
-            } catch (IllegalArgumentException e) {
-
-                System.out.println("Error : " + e.getMessage());
-            }
 	}
 
 	@Override
-	public void refund(long orderId) {
+	public void refund(Order order) {
 
 	}
 
@@ -69,15 +55,14 @@ public class Customer extends User implements Payable {
 	}
 
 	public ArrayList<Item> searchItem(String keyword) {
-            ArrayList<Item> hasilCari = new ArrayList<>();
-            for(CartItem cartItem : cart.getCartItems()){
-                if (cartItem.getItem().getItemName().toLowerCase().contains(keyword.toLowerCase())) {
+		ArrayList<Item> hasilCari = new ArrayList<>();
+		for (CartItem cartItem : cart.getCartItems()){
+			if (cartItem.getItem().getItemName().toLowerCase().contains(keyword.toLowerCase())) {
 
-                    hasilCari.add(cartItem.getItem());
-                }
-            }
-            return hasilCari;
-           
+				hasilCari.add(cartItem.getItem());
+			}
+		}
+		return hasilCari;
 	}
 
 	public void addToCart(Item item, int qty) {
@@ -92,38 +77,40 @@ public class Customer extends User implements Payable {
 		}
 	}
 
-	public void createOrder() {
-		// jangan ubah ini
+	public Order createOrder() throws EmptyOrderException{
+
 		if (!cart.isCartEmpty()) {
-			DatabaseUtil.insertOrder(
+			UUID uuid = UUID.randomUUID();
+			Order order = new Order(
+					uuid.toString(),
 					OrderStatus.PENDING,
-					orderLocation.getLocationName(),
-					orderLocation.getLatitude(), orderLocation.getLongitude(),
-					cart.calculateTotalPrice(), cart.calculateTotalPrice() * 0.1, 10_000.0,
+					new Location(orderLocation.getLocationName(), orderLocation.getLatitude(), orderLocation.getLongitude()),
+					cart.calculateTotalPrice(),
+					cart.calculateTotalPrice() * 0.1, 20_000.0,
 					userId,
 					cart
 			);
+			DatabaseUtil.insertOrder(order);
 			cart.emptyCart();
 			System.out.println("Pesanan telah dibuat");
+			return order;
 		} else {
-			System.out.println("Pesanan Kosong");
+			throw new EmptyOrderException("Pesanan Kosong");
 		}
 
 	}
 
+
+
 	public void cancelOrder(Order order) {
-		// jangan ubah ini
 		DatabaseUtil.changeOrderStatus(order.getOrderId(), OrderStatus.CANCELLED);
 		order.setOrderStatus(OrderStatus.CANCELLED);
-//			DatabaseUtil.insertOrdersByReceiverId(orders, this.getUserId());
 	}
 
 	public void completeOrder(Order order) {
-		// jangan ubah ini
-		DatabaseUtil.removeOrder(order.getOrderId());
-//			DatabaseUtil.insertOrdersByReceiverId(orders, this.getUserId());
+		DatabaseUtil.changeOrderStatus(order.getOrderId(), OrderStatus.COMPLETED);
+		order.setOrderStatus(OrderStatus.COMPLETED);
 	}
-
 
 	public void rate(Jastiper service, int value) {
 		try {

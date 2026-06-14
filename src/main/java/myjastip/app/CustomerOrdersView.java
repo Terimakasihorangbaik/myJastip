@@ -54,7 +54,10 @@ public class CustomerOrdersView {
                 finishOrderButton.setDisable(true);
             }
             finishOrderButton.setOnAction(e -> {
-                orderBox.getChildren().remove(orderMenu);
+//                orderBox.getChildren().remove(orderMenu);
+                cancelOrderButton.setDisable(true);
+                finishOrderButton.setDisable(true);
+                statusLabel.setText("Status: " + OrderStatus.COMPLETED);
                 customer.completeOrder(order);
             });
 

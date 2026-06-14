@@ -3,7 +3,7 @@ package myjastip.payment;
 import java.util.ArrayList;
 
 public interface Payable {
-    void payment(double amount);
-    void refund (long orderId);
+    void pay(Payment payment) throws InsufficientBalanceException ;
+    void refund(Order order);
     ArrayList<Payment> getPaymentHistory();
 }

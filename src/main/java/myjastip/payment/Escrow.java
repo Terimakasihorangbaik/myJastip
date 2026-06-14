@@ -1,21 +1,31 @@
 package myjastip.payment;
 
+import java.time.Instant;
+
 public class Escrow extends Payment {
     private String transactionId;
-    private double amount;
-    private String status;
+
+    public Escrow(String orderId, double amount, String transactionId) {
+        super(orderId, amount);
+        this.transactionId = transactionId;
+    }
+
+    public Escrow(String paymentId, String orderId, double amount, PaymentStatus status, String updatedAt, String transactionId) {
+        super(paymentId, orderId, amount, status, updatedAt);
+        this.transactionId = transactionId;
+    }
 
     public void holdFunds(){
-        this.status = "Tahan";
+        status = PaymentStatus.HELD;
         System.out.println("Sistem Escrow: Dana sebesar " + this.amount + " ditahan untuk transaksi ID: " + this.transactionId);
     }
 
     public void releaseFunds(){
-        this.status = "Lepas";
+        status = PaymentStatus.RELEASED;
         System.out.println("Sistem Escrow: Dana sebesar " + this.amount + " di lepas untuk transaksi ID: " + this.transactionId);
     }
     public void refundFunds(){
-        this.status = "Refund";
+        status = PaymentStatus.REFUNDED;
         System.out.println("Sistem Escrow: Transaksi batal. Dana dikembalikan ke Customer.");
     }
 }

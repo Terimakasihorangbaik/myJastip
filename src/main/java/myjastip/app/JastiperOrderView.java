@@ -9,10 +9,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import myjastip.db.DatabaseUtil;
 import myjastip.payment.Order;
 import myjastip.payment.OrderStatus;
-import myjastip.users.Customer;
 import myjastip.users.Jastiper;
 
 public class JastiperOrderView {
@@ -82,7 +80,7 @@ public class JastiperOrderView {
         jastiperOrderScene = new Scene(layout, 1200, 800);
     }
 
-    public Scene getCustomerOrdersScene() {
+    public Scene getJastiperOrderScene() {
         createJastiperOrderScene();
         return jastiperOrderScene;
     }
