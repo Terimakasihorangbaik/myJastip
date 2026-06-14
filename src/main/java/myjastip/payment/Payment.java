@@ -21,5 +21,5 @@ public class Payment {
    public void cancelPayment() {
     this.status = "CANCEL";
     System.out.println("Pembayaran dengan ID : " + paymentId + " telah dibatalkan.");
-}
+    }
 }
