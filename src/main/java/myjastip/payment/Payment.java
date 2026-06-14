@@ -1,16 +1,30 @@
 package myjastip.payment;
 
+import java.time.Instant;
+
 public class Payment {
     protected String paymentId;
+    protected String orderId;
     protected double amount;
-    protected String status;
-    protected String createdAt;
-    private String transactionId;
+    protected PaymentStatus status;
+    protected String updatedAt;
 
-    public void processPayment(double amount,String status,String transactionId){
-        this.transactionId = transactionId;
+    public Payment(String orderId, double amount) {
+        this.orderId = orderId;
+        this.amount = amount;
+        this.status = PaymentStatus.UNFINISHED;
+        this.updatedAt = Instant.now().toString();
+    }
+    public Payment(String paymentId, String orderId, double amount, PaymentStatus status, String updatedAt) {
+        this.paymentId = paymentId;
+        this.orderId = orderId;
         this.amount = amount;
         this.status = status;
+        this.updatedAt = updatedAt;
+    }
+
+    public void processPayment(double amount) {
+
         System.out.println("Pembayaran sebesar " + amount + " berhasil diproses.");
     }
 
@@ -18,8 +32,48 @@ public class Payment {
         return "ID Pembayaran: " + paymentId + "  Total: " + amount + "  Status: " + status;
     }
 
-   public void cancelPayment() {
-    this.status = "CANCEL";
-    System.out.println("Pembayaran dengan ID : " + paymentId + " telah dibatalkan.");
+//    public void cancelPayment() {
+//    //        this.status = "CANCEL";
+//        System.out.println("Pembayaran dengan ID " + paymentId + " telah dibatalkan.");
+//    }
+
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(String paymentId) {
+        this.paymentId = paymentId;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
+    public PaymentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PaymentStatus status) {
+        this.status = status;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

@@ -11,8 +11,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import myjastip.db.DatabaseUtil;
+import myjastip.payment.EmptyOrderException;
 import myjastip.payment.Order;
 import myjastip.payment.OrderStatus;
+import myjastip.payment.Payment;
 import myjastip.storage.CartItem;
 import myjastip.users.Customer;
 import myjastip.users.Jastiper;
@@ -139,14 +141,22 @@ public class DashboardView {
 
             orderButton.setOnAction(e -> {
                 Customer customer = (Customer) user;
-                customer.createOrder();
-                ((VBox) storeScrollPane.getContent()).getChildren().clear();
+                try {
+                    Order order = customer.createOrder();
+                    ((VBox) storeScrollPane.getContent()).getChildren().clear();
+                    Payment payment = new Payment(order.getOrderId(), order.getTotalItemPrice());
+                    appWindow.showPaymentScene(customer, payment);
+                } catch (EmptyOrderException ex) {
+                    System.out.println("Error: " + ex.getMessage());
+                }
+
             });
 
             Button orderViewButton = new Button("Lihat Pesanan");
             orderViewButton.setStyle("-fx-background-color: #80BEFF; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
             orderViewButton.setOnAction(e -> {
                 appWindow.showCustomerOrdersScene((Customer) user);
+
             });
 
 

@@ -5,6 +5,7 @@ import myjastip.location.Location;
 import myjastip.payment.Order;
 import myjastip.payment.OrderStatus;
 import myjastip.payment.Payment;
+import myjastip.payment.PaymentStatus;
 import myjastip.storage.Cart;
 import myjastip.storage.Item;
 import myjastip.users.Customer;
@@ -14,6 +15,7 @@ import org.postgresql.util.PSQLException;
 
 import java.sql.*;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -23,8 +25,7 @@ public class DatabaseUtil {
         return DriverManager.getConnection(URL);
     }
 
-    public static String getUserId(String name, String pass)
-    {
+    public static String getUserId(String name, String pass) {
         try {
             Connection connection = getConnection();
             Statement statement = connection.createStatement();
@@ -59,11 +60,12 @@ public class DatabaseUtil {
             String userPhoneNumber = resultSet.getString("phone_number");
             String userAddress = resultSet.getString("address");
             boolean isJastiper = resultSet.getBoolean("is_jastiper");
+            double balance = resultSet.getDouble("balance");
 
             if (isJastiper) {
-                return new Jastiper(userId, userName, userEmail, userPassword, userPhoneNumber, new ArrayList<>());
+                return new Jastiper(userId, userName, userEmail, userPassword, userPhoneNumber, balance, new ArrayList<>());
             } else {
-                return new Customer(userId, userName, userEmail, userPassword, userPhoneNumber, userAddress, new Cart(), new Location(), new ArrayList<>(), new ArrayList<>());
+                return new Customer(userId, userName, userEmail, userPassword, userPhoneNumber, balance, userAddress, new Cart(), new Location(), new ArrayList<>(), new ArrayList<>());
             }
 
         } catch (PSQLException e) {
@@ -113,14 +115,15 @@ public class DatabaseUtil {
     }
 
 
-    public static void insertOrder(OrderStatus status, String locationName, double locationLatitude, double locationLongitude, double totalItemPrice, double transportationFee, double serviceFee, String recieverId, Cart cart) {
+    public static void insertOrder(Order order) {
+//        OrderStatus status, String locationName, double locationLatitude, double locationLongitude, double totalItemPrice, double transportationFee, double serviceFee, String recieverId, Cart cart
         try {
             Connection connection = getConnection();
 
             Gson cartGson = new Gson();
-            String cartJson = cartGson.toJson(cart);
+            String cartJson = cartGson.toJson(order.getOrderedCart());
 
-            String query = String.format("INSERT INTO orders (status, location_name, location_latitude, location_longitude, total_item_price, transportation_fee, service_fee, receiver_id, order_items) VALUES ('%s', '%s', %f, %f, %f, %f, %f, '%s', '%s');", status, locationName, locationLatitude, locationLongitude, totalItemPrice, transportationFee, serviceFee, recieverId, cartJson);
+            String query = String.format("INSERT INTO orders (id, status, location_name, location_latitude, location_longitude, total_item_price, transportation_fee, service_fee, receiver_id, order_items) VALUES ('%s', '%s', '%s', %f, %f, %f, %f, %f, '%s', '%s');", order.getOrderId(), order.getOrderStatus(), order.getLocation().getLocationName(), order.getLocation().getLatitude(), order.getLocation().getLongitude(), order.getTotalItemPrice(), order.getTransportationFee(), order.getServiceFee(), order.getReceiverId(), cartJson);
             PreparedStatement pstmt = connection.prepareStatement(query);
             int rowsInserted = pstmt.executeUpdate();
 
@@ -359,6 +362,26 @@ public class DatabaseUtil {
             System.exit(0);
         } catch (Exception e) {
             System.out.println("Terjadi Error pada removeOrder()");
+            System.exit(0);
+        }
+    }
+
+    public static void insertPayment(String orderId, PaymentStatus status, double amount) {
+        try {
+            Connection connection = getConnection();
+
+            Instant now = Instant.now();
+
+            String query = String.format("INSERT INTO payments (order_id, status, amount, updates_at) VALUES ('%s', '%s', %f, ?);", orderId, status, amount);
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setObject(4, now);
+            pstmt.executeUpdate();
+
+        } catch (PSQLException e) {
+            System.out.println("Error pada PSQLException pada insertPayment()");
+            System.exit(0);
+        } catch (Exception e) {
+            System.out.println("Terjadi Error pada insertPayment()");
             System.exit(0);
         }
     }

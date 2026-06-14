@@ -31,6 +31,7 @@ public class Order {
 		this.serviceFee = serviceFee;
 		this.receiverId = receiverId;
 		this.orderedCart = orderedCart;
+		this.totalBill = this.totalItemPrice + this.transportationFee + this.serviceFee;
 	}
 
 	// ini overloading method ingat dia itu harus sama dengan nama class nya dan field nya //
@@ -44,6 +45,7 @@ public class Order {
 		this.receiverId = receiverId;
 		this.orderedCart = orderedCart;
 		this.jastiperId = jastiperId;
+		this.totalBill = this.totalItemPrice + this.transportationFee + this.serviceFee;
 
 	}
 
@@ -101,11 +103,8 @@ public class Order {
 	}
 
 	public double getTotalBill() {
+		this.totalBill = this.totalItemPrice + this.transportationFee + this.serviceFee;
 		return totalBill;
-	}
-
-	public void setTotalBill(double totalBill) {
-		this.totalBill = totalBill;
 	}
 
 	public Cart getOrderedCart() {
