@@ -10,8 +10,14 @@ public class Location {
         Random rand = new Random();
         this.latitude = -90 + rand.nextFloat() * 180;
         this.longitude = -180 + rand.nextFloat() * 360;
-        this.locationName = "Random Location";
+        this.locationName = "Unnamed Location";
     }
+
+    public Location(String location) {
+        this();
+        this.locationName = location;
+    }
+
     public Location(String location, double latitude, double longitude) {
         this.locationName = location;
         this.latitude = latitude;
@@ -20,7 +26,7 @@ public class Location {
 
     @Override
     public String toString() {
-        return "(" + latitude + ", " + longitude + ")";
+        return locationName + " - (" + latitude + ", " + longitude + ")";
     }
 
     public void setCoordinate(double latitude, double longitude) {

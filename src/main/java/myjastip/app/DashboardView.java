@@ -3,14 +3,14 @@ package myjastip.app;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import myjastip.db.DatabaseUtil;
+import myjastip.location.Location;
 import myjastip.payment.EmptyOrderException;
 import myjastip.payment.Order;
 import myjastip.payment.OrderStatus;
@@ -22,6 +22,8 @@ import myjastip.users.User;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.function.UnaryOperator;
+import java.util.regex.Pattern;
 
 public class DashboardView {
 
@@ -119,14 +121,77 @@ public class DashboardView {
 
         Label userTypeLabel = new Label("Akun: " + (user instanceof Customer ? "Customer" : "Jastiper"));
 
-        Label infoLabel = new Label("Ini adalah halaman Dashboard Utama.");
+//        Label infoLabel = new Label("Ini adalah halaman Dashboard Utama.");
+
+        Label balanceLabel = new Label("Saldo: Rp." + user.getBalance());
 
         Button logoutButton = new Button("Logout");
         logoutButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-background-radius: 20px; -fx-border-radius: 20px;");
 
         logoutButton.setOnAction(e -> appWindow.showLoginScene());
 
+
+        layout.getChildren().addAll(welcomeLabel, userTypeLabel, balanceLabel);
+
         if (user instanceof Customer) {
+
+            VBox addressSelectionMenu = new VBox();
+            Label addrSelectionLabel = new Label("isi alamat tujuan pesanan: ");
+//        addressSelectionMenu.setPrefWidth(500);
+            GridPane gp = new GridPane();
+
+            Label setAddressLabel = new Label("Alamat ");
+            Label setLatitudeLabel = new Label("Garis lintang ");
+            Label setLongitudeLabel = new Label("Garis bujur ");
+
+            TextField inputAddress = new TextField();
+            TextField inputLatitude = new TextField();
+            TextField inputLongitude = new TextField();
+
+            // Regex matches optional leading minus sign, optional digits, optional decimal point, and optional fractional digits
+            Pattern validEditingState = Pattern.compile("-?(\\d*\\.?\\d*)?");
+
+            UnaryOperator<TextFormatter.Change> filter = change -> {
+                String newText = change.getControlNewText();
+                if (validEditingState.matcher(newText).matches()) {
+                    return change; // Accept change
+                }
+                return null; // Reject change
+            };
+
+            TextFormatter<String> textFormatterLatitude = new TextFormatter<>(filter);
+            TextFormatter<String> textFormatterLongitude = new TextFormatter<>(filter);
+
+            inputLatitude.setTextFormatter(textFormatterLatitude);
+            inputLongitude.setTextFormatter(textFormatterLongitude);
+
+            // Retrieve the float value later
+            inputLatitude.setOnAction(e -> {
+                try {
+                    float value = Float.parseFloat(inputLatitude.getText());
+                    System.out.println("User entered: " + value);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Invalid float or empty string");
+                }
+            });
+
+            inputLongitude.setOnAction(e -> {
+                try {
+                    float value = Float.parseFloat(inputLatitude.getText());
+                    System.out.println("User entered: " + value);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Invalid float or empty string");
+                }
+            });
+
+            gp.add(setAddressLabel,  0, 1); gp.add(inputAddress,  1, 1);
+            gp.add(setLatitudeLabel, 0, 2); gp.add(inputLatitude, 1, 2);
+            gp.add(setLongitudeLabel,0, 3); gp.add(inputLongitude,1, 3);
+
+            addressSelectionMenu.getChildren().addAll(addrSelectionLabel, gp);
+
+
+
             Button storeButton = new Button("Toko");
             storeButton.setStyle("-fx-background-color: #88FF74; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
             storeButton.setOnAction(e -> appWindow.showStoreScene((Customer) user));
@@ -143,6 +208,13 @@ public class DashboardView {
             orderButton.setOnAction(e -> {
                 Customer customer = (Customer) user;
                 try {
+                    if (!(inputAddress.getText().isEmpty() || inputLatitude.getText().isEmpty() || inputLongitude.getText().isEmpty())) {
+                        customer.setOrderLocation(new Location(inputAddress.getText(), Double.parseDouble(inputLatitude.getText()), Double.parseDouble(inputLatitude.getText())));
+                    } else if (!inputAddress.getText().isEmpty()) {
+                        customer.setOrderLocation(new Location(inputAddress.getText()));
+                    } else {
+                        customer.setOrderLocation(new Location());
+                    }
                     Order order = customer.createOrder();
                     ((VBox) storeScrollPane.getContent()).getChildren().clear();
 
@@ -164,7 +236,7 @@ public class DashboardView {
             });
 
 
-            layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, storeButton, storeScrollPane, orderButton, orderViewButton, logoutButton);
+            layout.getChildren().addAll(addressSelectionMenu, storeButton, storeScrollPane, orderButton, orderViewButton, logoutButton);
         }
         else {
             ScrollPane orderScrollPane = new ScrollPane();
@@ -179,7 +251,7 @@ public class DashboardView {
                 appWindow.showJastiperOrderScene((Jastiper) user);
             });
 
-            layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, acceptedOrdersButton, orderScrollPane, logoutButton);
+            layout.getChildren().addAll(acceptedOrdersButton, orderScrollPane, logoutButton);
         }
         dashboardScene = new Scene(layout, 1200, 800);
     }

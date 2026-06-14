@@ -85,7 +85,8 @@ public class Customer extends User implements Payable {
 			Order order = new Order(
 					uuid.toString(),
 					OrderStatus.PENDING,
-					new Location(orderLocation.getLocationName(), orderLocation.getLatitude(), orderLocation.getLongitude()),
+					orderLocation,
+//					new Location(orderLocation.getLocationName(), orderLocation.getLatitude(), orderLocation.getLongitude()),
 					cart.calculateTotalPrice(),
 					cart.calculateTotalPrice() * 0.1, 20_000.0,
 					userId,

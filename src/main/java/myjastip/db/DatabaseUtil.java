@@ -426,37 +426,6 @@ public class DatabaseUtil {
             System.exit(0);
         }
     }
-//    public static void insertUsers(ArrayList<User> users, Connection connection) {
-//        try {
-//            Statement statement = connection.createStatement();
-//            String query = "SELECT * FROM \"users\";";
-//            var resultSet = statement.executeQuery(query);
-//            while (resultSet.next()) {
-//                String userId = resultSet.getString("id");
-//                String userName = resultSet.getString("name");
-//                String userEmail = resultSet.getString("email");
-//                String userPassword = resultSet.getString("password");
-//                String userPhoneNumber = resultSet.getString("phone_number");
-//                String userAddress = resultSet.getString("address");
-//                boolean isJastiper = resultSet.getBoolean("is_jastiper");
-//
-//                if (isJastiper) {
-//                    users.add(new Jastiper(userId, userName, userEmail, userPassword, userPhoneNumber, 0.0, false, false));
-//                } else {
-//                    users.add(new Customer(userId, userName, userEmail, userPassword, userPhoneNumber, userAddress, new Cart()));
-//                }
-//
-//            }
-//        } catch (PSQLException e) {
-//            System.out.println("Error pada PSQLException");
-//            System.exit(0);
-//        } catch (Exception e) {
-//            System.out.println("Terjadi Error");
-//            System.exit(0);
-//        }
-//    }
-
-
 
 }
 
