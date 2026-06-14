@@ -42,7 +42,7 @@ public class DashboardView {
         for (CartItem cartItem : ((Customer) user).getCart().getCartItems()) {
             HBox itemBox = new HBox(12);
 
-            Label itemLabel = new Label(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity());
+            Label itemLabel = new Label(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity() + " ( Rp." + cartItem.getSubTotal() + ")");
             Button itemQtyAdd = new Button("+");
             itemQtyAdd.setFont(new Font("Consolas", 12));
             itemQtyAdd.setStyle("-fx-background-color: white; -fx-border-color: green; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
@@ -55,12 +55,12 @@ public class DashboardView {
             itemLabel.setMaxWidth(800);
             itemQtyAdd.setOnAction(e -> {
                 cartItem.addQuanitity(1);
-                itemLabel.setText(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity());
+                itemLabel.setText(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity() + " ( Rp." + cartItem.getSubTotal() + ")");
             });
             itemQtyMin.setOnAction(e -> {
                 if (cartItem.getQuantity() > 1) {
                     cartItem.subtractQuanitity(1);
-                    itemLabel.setText(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity());
+                    itemLabel.setText(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity() + " ( Rp." + cartItem.getSubTotal() + ")");
                 } else {
                     ((Customer) user).getCart().removeItem(cartItem);
                     cartBox.getChildren().remove(itemBox);
@@ -136,6 +136,12 @@ public class DashboardView {
 
         if (user instanceof Customer) {
 
+
+            Button paymentHistoryButton = new Button("Histori Pembayaran");
+            paymentHistoryButton.setStyle("-fx-background-color: #88FF74; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
+            paymentHistoryButton.setOnAction(e -> appWindow.showPaymentHistoryScene((Customer) user));
+
+
             VBox addressSelectionMenu = new VBox();
             Label addrSelectionLabel = new Label("isi alamat tujuan pesanan: ");
 //        addressSelectionMenu.setPrefWidth(500);
@@ -197,13 +203,17 @@ public class DashboardView {
             storeButton.setStyle("-fx-background-color: #88FF74; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
             storeButton.setOnAction(e -> appWindow.showStoreScene((Customer) user));
 
+
+
             ScrollPane storeScrollPane = new ScrollPane();
             storeScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             storeScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
             storeScrollPane.setFitToWidth(true);
             storeScrollPane.setContent(cartsMenu());
 
-            Button orderButton = new Button("Buat Pesanan");
+            double totalPrice = ((Customer) user).calculateFinalPrice();
+
+            Button orderButton = new Button("Buat Pesanan (Rp. " +  new BigDecimal(String.valueOf(totalPrice)).toPlainString() + ")");
             orderButton.setStyle("-fx-background-color: #00FF00; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
 
             orderButton.setOnAction(e -> {
@@ -237,7 +247,7 @@ public class DashboardView {
             });
 
 
-            layout.getChildren().addAll(addressSelectionMenu, storeButton, storeScrollPane, orderButton, orderViewButton, logoutButton);
+            layout.getChildren().addAll(paymentHistoryButton, addressSelectionMenu, storeButton, storeScrollPane, orderButton, orderViewButton, logoutButton);
         }
         else {
             ScrollPane orderScrollPane = new ScrollPane();

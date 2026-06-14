@@ -38,20 +38,17 @@ public class Customer extends User implements Payable {
 			throw new InsufficientBalanceException("Saldo anda belum cukup untuk membayar pembayaran ini!");
 		}
 
-
 		payment.processPayment(payment.getAmount());
-		paymentHistory.add(payment);
 		System.out.println("Pembayaran berhasil.");
 
 	}
 
 	@Override
-	public void refund(Order order) {
-
-	}
-
-	@Override
 	public ArrayList<EscrowPayment> getPaymentHistory() {
+		ArrayList<EscrowPayment> tempPayments = new ArrayList<>();
+		DatabaseUtil.insertPaymentArray(paymentHistory);
+		paymentHistory.stream()
+				.filter(payment -> DatabaseUtil.getOrder(payment.getOrderId()).getReceiverId().equals(userId));
 		return paymentHistory;
 	}
 
@@ -88,7 +85,7 @@ public class Customer extends User implements Payable {
 					orderLocation,
 //					new Location(orderLocation.getLocationName(), orderLocation.getLatitude(), orderLocation.getLongitude()),
 					cart.calculateTotalPrice(),
-					cart.calculateTotalPrice() * 0.1, 20_000.0,
+					cart.calculateTotalPrice() * 0.1, cart.calculateTotalPrice() * 0.05,
 					userId,
 					cart
 			);
@@ -102,14 +99,20 @@ public class Customer extends User implements Payable {
 
 	}
 
-
+	public double calculateFinalPrice() {
+		return cart.calculateTotalPrice() * 1.15;
+	}
 
 	public void cancelOrder(Order order) {
 		DatabaseUtil.changeOrderStatus(order.getOrderId(), OrderStatus.CANCELLED);
 		order.setOrderStatus(OrderStatus.CANCELLED);
-
 		EscrowPayment payment = DatabaseUtil.getPaymentByOrderId(order.getOrderId());
-		DatabaseUtil.changePaymentStatus(payment.getPaymentId(), PaymentStatus.REFUNDED);
+
+		if (payment.getStatus() != PaymentStatus.UNFINISHED) {
+			payment.refundFunds();
+		} else {
+			DatabaseUtil.changePaymentStatus(payment.getPaymentId(), PaymentStatus.CANCELLED);
+		}
 	}
 
 	public void completeOrder(Order order) {
@@ -117,7 +120,7 @@ public class Customer extends User implements Payable {
 		order.setOrderStatus(OrderStatus.COMPLETED);
 
 		EscrowPayment payment = DatabaseUtil.getPaymentByOrderId(order.getOrderId());
-		DatabaseUtil.changePaymentStatus(payment.getPaymentId(), PaymentStatus.RELEASED);
+		payment.releaseFunds();
 	}
 
 	public void rate(Jastiper service, int value) {

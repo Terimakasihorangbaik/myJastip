@@ -38,7 +38,7 @@ public class JastiperOrderView {
 
             Button finishDeliveryButton = new Button("Selesaikan Pengiriman");
 
-            if (order.getOrderStatus() == OrderStatus.DELIVERED) {
+            if (order.getOrderStatus() == OrderStatus.DELIVERED || order.getOrderStatus() == OrderStatus.COMPLETED) {
                 finishDeliveryButton.setDisable(true);
             }
 

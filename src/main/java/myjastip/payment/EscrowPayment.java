@@ -44,6 +44,7 @@ public class EscrowPayment {
     public void releaseFunds() {
         Order order = DatabaseUtil.getOrder(orderId);
         User user = DatabaseUtil.getUser(order.getJastiperId());
+        System.out.println(order.getJastiperId());
         DatabaseUtil.changeUserBalance(user.getUserId(), user.getBalance() + amount);
         DatabaseUtil.changePaymentStatus(paymentId, PaymentStatus.RELEASED);
         user.setBalance(user.getBalance() + amount);

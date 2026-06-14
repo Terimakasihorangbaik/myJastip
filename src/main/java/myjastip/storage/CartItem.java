@@ -3,7 +3,6 @@ package myjastip.storage;
 public class CartItem {
 	private Item item;
 	private int quantity;
-	private double subTotalPrice;
 
 	public CartItem(Item item, int quantity) {
 		this.item = item;
@@ -38,11 +37,4 @@ public class CartItem {
 		this.quantity -= qty;
 	}
 
-	public double getSubTotalPrice() {
-		return subTotalPrice;
-	}
-
-	public void setSubTotalPrice(double subTotalPrice) {
-		this.subTotalPrice = subTotalPrice;
-	}
 }

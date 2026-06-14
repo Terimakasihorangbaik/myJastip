@@ -18,9 +18,6 @@ public class Order {
 	private double totalBill;
 	private Cart orderedCart;
 
-	public Order() {
-
-	}
 
 	public Order(String orderId, OrderStatus orderStatus, Location location, double totalItemPrice, double transportationFee, double serviceFee, String receiverId, Cart orderedCart) {
 		this.orderId = orderId;
@@ -47,11 +44,6 @@ public class Order {
 		this.jastiperId = jastiperId;
 		this.totalBill = this.totalItemPrice + this.transportationFee + this.serviceFee;
 
-	}
-
-	public double calculateTotalBill() {
-                totalBill = totalItemPrice + transportationFee + serviceFee;
-		return totalBill;
 	}
 
 	public String getOrderId() {

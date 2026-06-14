@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import myjastip.db.DatabaseUtil;
 import myjastip.payment.Order;
 import myjastip.payment.OrderStatus;
+import myjastip.payment.PaymentStatus;
 import myjastip.users.Customer;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class CustomerOrdersView {
             if (order.getOrderStatus() == OrderStatus.COMPLETED || order.getOrderStatus() == OrderStatus.DELIVERED || order.getOrderStatus() == OrderStatus.CANCELLED) {
                 cancelOrderButton.setDisable(true);
             }
+
             cancelOrderButton.setOnAction(e -> {
                 customer.cancelOrder(order);
                 cancelOrderButton.setDisable(true);

@@ -14,10 +14,6 @@ public class Jastiper extends User {
     private boolean isVerified;
     private ArrayList<Order> acceptedOrders;
 
-    public Jastiper() {
-        super();
-    }
-
     public Jastiper(String userId, String name, String email, String password, String phoneNumber, double balance, ArrayList<Order> acceptedOrders) {
         super(userId, name, email, password, phoneNumber, balance);
         this.isVerified = false;
@@ -26,13 +22,8 @@ public class Jastiper extends User {
 
     public void acceptOrder(Order order) {
         try {
-//            if (!isVerified) {
-//                throw new Exception("Jastiper belum terverifikasi");
-//            }
             updateOrderStatus(order, OrderStatus.OUT_FOR_DELIVERY);
             DatabaseUtil.addJastiperId(order.getOrderId(), userId);
-
-
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -44,9 +35,6 @@ public class Jastiper extends User {
 
     public void finishDelivery(Order order) {
         try {
-//            if (!isVerified) {
-//                throw new Exception("Jastiper belum terverifikasi");
-//            }
             acceptedOrders.remove(order);
             updateOrderStatus(order, OrderStatus.DELIVERED);
 

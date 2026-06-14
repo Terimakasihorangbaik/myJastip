@@ -88,10 +88,10 @@ public class DatabaseUtil {
 
 
         } catch (PSQLException e) {
-            System.out.println("Error PSQLException pada changeUserBalance()");
+            System.out.println("Error PSQLException pada changeUserBalance(): " + e.getMessage());
             System.exit(0);
         } catch (Exception e) {
-            System.out.println("Terjadi Error pada changeUserBalance()");
+            System.out.println("Terjadi Error pada changeUserBalance(): " + e.getMessage());
             System.exit(0);
         }
     }
@@ -348,11 +348,12 @@ public class DatabaseUtil {
             double serviceFee = resultSet.getDouble("service_fee");
             String rawOrderItems = resultSet.getString("order_items");
             String receiverId = resultSet.getString("receiver_id");
+            String jastiperId = resultSet.getString("jastiper_id");
 
             Gson orderGson = new Gson();
             Cart cart = orderGson.fromJson(rawOrderItems, Cart.class);
 
-            return new Order(orderId, OrderStatus.valueOf(orderStatus), new Location(locationName, locationLatitude, locationLongitude), totalItemPrice, transportationFee, serviceFee, receiverId, cart);
+            return new Order(orderId, OrderStatus.valueOf(orderStatus), new Location(locationName, locationLatitude, locationLongitude), totalItemPrice, transportationFee, serviceFee, receiverId, cart, jastiperId);
 
         } catch (PSQLException e) {
             System.out.println("Error PSQLException pada getOrder(): " + e.getMessage());
@@ -480,6 +481,34 @@ public class DatabaseUtil {
             System.exit(0);
         }
         return null;
+    }
+
+    public static void insertPaymentArray(ArrayList<EscrowPayment> payments) {
+        payments.clear();
+        try {
+            Connection connection = getConnection();
+            Statement statement = connection.createStatement();
+            String query = "SELECT * FROM payments";
+
+            var resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                String paymentId = resultSet.getString("id");
+                String ordId = resultSet.getString("order_id");
+                String paymentStatus = resultSet.getString("status");
+                double amount = resultSet.getDouble("amount");
+                String updatedAt = resultSet.getString("updated_at");
+
+                payments.add(new EscrowPayment(paymentId, ordId, amount, PaymentStatus.valueOf(paymentStatus), updatedAt));
+
+            }
+        } catch (PSQLException e) {
+            System.out.println("Error pada PSQLException pada insertPaymentArray(): " + e.getMessage());
+            System.exit(0);
+        } catch (Exception e) {
+            System.out.println("Terjadi Error pada insertPaymentArray(): " + e.getMessage());
+            System.exit(0);
+
+        }
     }
 
 }

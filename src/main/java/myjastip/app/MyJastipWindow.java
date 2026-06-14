@@ -16,6 +16,7 @@ public class MyJastipWindow extends Application {
     private CustomerOrdersView customerOrdersView;
     private JastiperOrderView jastiperOrderView;
     private PaymentView paymentView;
+    private PaymentHistoryView paymentHistoryView;
 
     @Override
     public void start(Stage stage) {
@@ -31,6 +32,7 @@ public class MyJastipWindow extends Application {
         this.customerOrdersView = new CustomerOrdersView(this);
         this.jastiperOrderView = new JastiperOrderView(this);
         this.paymentView = new PaymentView(this);
+        this.paymentHistoryView = new PaymentHistoryView(this);
 
         showLoginScene();
         this.primaryStage.show();
@@ -68,6 +70,11 @@ public class MyJastipWindow extends Application {
         paymentView.setCustomer(customer);
         paymentView.setPayment(payment);
         primaryStage.setScene(paymentView.getPaymentScene());
+    }
+
+    public void showPaymentHistoryScene(Customer customer) {
+        paymentHistoryView.setCustomer(customer);
+        primaryStage.setScene(paymentHistoryView.getPaymentHistoryScene());
     }
 
 }
