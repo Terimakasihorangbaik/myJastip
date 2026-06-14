@@ -33,6 +33,7 @@ public class EscrowPayment {
         DatabaseUtil.changeUserBalance(user.getUserId(), user.getBalance() - amount);
         DatabaseUtil.changePaymentStatus(paymentId, PaymentStatus.HELD);
         user.setBalance(user.getBalance() - amount);
+        status = PaymentStatus.HELD;
         System.out.println("Pembayaran sebesar " + amount + " berhasil diproses.");
     }
 
@@ -40,21 +41,22 @@ public class EscrowPayment {
         return "ID Pembayaran: " + paymentId + "  Total: " + amount + "  Status: " + status;
     }
 
-//    public void cancelPayment() {
-//    //        this.status = "CANCEL";
-//        System.out.println("Pembayaran dengan ID " + paymentId + " telah dibatalkan.");
-//    }
-
-    public void holdFunds(){
-        status = PaymentStatus.HELD;
-        System.out.println("Sistem Escrow: Dana sebesar " + this.amount + " ditahan");
-    }
-
-    public void releaseFunds(){
+    public void releaseFunds() {
+        Order order = DatabaseUtil.getOrder(orderId);
+        User user = DatabaseUtil.getUser(order.getJastiperId());
+        DatabaseUtil.changeUserBalance(user.getUserId(), user.getBalance() + amount);
+        DatabaseUtil.changePaymentStatus(paymentId, PaymentStatus.RELEASED);
+        user.setBalance(user.getBalance() + amount);
         status = PaymentStatus.RELEASED;
         System.out.println("Sistem Escrow: Dana sebesar " + this.amount + " di lepas");
     }
-    public void refundFunds(){
+
+    public void refundFunds() {
+        Order order = DatabaseUtil.getOrder(orderId);
+        User user = DatabaseUtil.getUser(order.getReceiverId());
+        DatabaseUtil.changeUserBalance(user.getUserId(), user.getBalance() + amount);
+        DatabaseUtil.changePaymentStatus(paymentId, PaymentStatus.REFUNDED);
+        user.setBalance(user.getBalance() + amount);
         status = PaymentStatus.REFUNDED;
         System.out.println("Sistem Escrow: Transaksi batal. Dana dikembalikan ke Customer.");
     }

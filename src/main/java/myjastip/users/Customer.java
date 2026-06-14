@@ -6,6 +6,8 @@ import myjastip.payment.*;
 import myjastip.storage.Cart;
 import myjastip.storage.CartItem;
 import myjastip.storage.Item;
+
+import javax.xml.crypto.Data;
 import java.util.UUID;
 
 
@@ -105,11 +107,17 @@ public class Customer extends User implements Payable {
 	public void cancelOrder(Order order) {
 		DatabaseUtil.changeOrderStatus(order.getOrderId(), OrderStatus.CANCELLED);
 		order.setOrderStatus(OrderStatus.CANCELLED);
+
+		EscrowPayment payment = DatabaseUtil.getPaymentByOrderId(order.getOrderId());
+		DatabaseUtil.changePaymentStatus(payment.getPaymentId(), PaymentStatus.REFUNDED);
 	}
 
 	public void completeOrder(Order order) {
 		DatabaseUtil.changeOrderStatus(order.getOrderId(), OrderStatus.COMPLETED);
 		order.setOrderStatus(OrderStatus.COMPLETED);
+
+		EscrowPayment payment = DatabaseUtil.getPaymentByOrderId(order.getOrderId());
+		DatabaseUtil.changePaymentStatus(payment.getPaymentId(), PaymentStatus.RELEASED);
 	}
 
 	public void rate(Jastiper service, int value) {
@@ -149,7 +157,4 @@ public class Customer extends User implements Payable {
 		return orders;
 	}
 
-	public void setOrders(ArrayList<Order> orders) {
-		this.orders = orders;
-	}
 }

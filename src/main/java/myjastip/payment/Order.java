@@ -122,4 +122,12 @@ public class Order {
 	public void setReceiverId(String receiverId) {
 		this.receiverId = receiverId;
 	}
+
+	public String getJastiperId() {
+		return jastiperId;
+	}
+
+	public void setJastiperId(String jastiperId) {
+		this.jastiperId = jastiperId;
+	}
 }

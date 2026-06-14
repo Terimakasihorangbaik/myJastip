@@ -20,6 +20,7 @@ import myjastip.users.Customer;
 import myjastip.users.Jastiper;
 import myjastip.users.User;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
@@ -62,7 +63,7 @@ public class DashboardView {
                     itemLabel.setText(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity());
                 } else {
                     ((Customer) user).getCart().removeItem(cartItem);
-                    cartBox.getChildren().removeIf(i -> i.equals(itemBox));
+                    cartBox.getChildren().remove(itemBox);
                 }
             });
 
@@ -123,7 +124,7 @@ public class DashboardView {
 
 //        Label infoLabel = new Label("Ini adalah halaman Dashboard Utama.");
 
-        Label balanceLabel = new Label("Saldo: Rp." + user.getBalance());
+        Label balanceLabel = new Label("Saldo: Rp." + new BigDecimal(String.valueOf(user.getBalance())).toPlainString());
 
         Button logoutButton = new Button("Logout");
         logoutButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-background-radius: 20px; -fx-border-radius: 20px;");

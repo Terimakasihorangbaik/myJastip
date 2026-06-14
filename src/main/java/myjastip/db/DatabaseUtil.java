@@ -267,7 +267,6 @@ public class DatabaseUtil {
 
 
     public static Order getOrderByReceiverId(String userId) {
-        if (userId == null) return new Order();
         try {
             Connection connection = getConnection();
             Statement statement = connection.createStatement();
@@ -283,12 +282,12 @@ public class DatabaseUtil {
             double transportationFee = resultSet.getDouble("total_item_price");
             double serviceFee = resultSet.getDouble("service_fee");
             String rawOrderItems = resultSet.getString("order_items");
-//            String receiverId = resultSet.getString("receiver_id");
+            String receiverId = resultSet.getString("receiver_id");
 
             Gson orderGson = new Gson();
             Cart cart = orderGson.fromJson(rawOrderItems, Cart.class);
 
-            return new Order(orderId, OrderStatus.valueOf(orderStatus), new Location(locationName, locationLatitude, locationLongitude), totalItemPrice, transportationFee, serviceFee, userId, cart);
+            return new Order(orderId, OrderStatus.valueOf(orderStatus), new Location(locationName, locationLatitude, locationLongitude), totalItemPrice, transportationFee, serviceFee, receiverId, cart);
 
         } catch (PSQLException e) {
             System.out.println("Error PSQLException pada getOrderByReceiverId(); " + e.getMessage());
@@ -297,12 +296,43 @@ public class DatabaseUtil {
             System.out.println("Terjadi Error pada getOrderByReceiverId(); " + e.getMessage());
             System.exit(0);
         }
-        return new Order();
+        return null;
     }
 
+    public static Order getOrderByJastiperId(String userId) {
+        try {
+            Connection connection = getConnection();
+            Statement statement = connection.createStatement();
+            String query = String.format("SELECT * FROM orders WHERE jastiper_id = '%s'", userId);
+            var resultSet = statement.executeQuery(query);
+            resultSet.next();
+            String orderId = resultSet.getString("id");
+            String orderStatus = resultSet.getString("status");
+            String locationName = resultSet.getString("location_name");
+            double locationLatitude = resultSet.getDouble("location_latitude");
+            double locationLongitude = resultSet.getDouble("location_longitude");
+            double totalItemPrice = resultSet.getDouble("total_item_price");
+            double transportationFee = resultSet.getDouble("total_item_price");
+            double serviceFee = resultSet.getDouble("service_fee");
+            String rawOrderItems = resultSet.getString("order_items");
+            String receiverId = resultSet.getString("receiver_id");
+            String jastiperId = resultSet.getString("jastiper_id");
 
+            Gson orderGson = new Gson();
+            Cart cart = orderGson.fromJson(rawOrderItems, Cart.class);
+
+            return new Order(orderId, OrderStatus.valueOf(orderStatus), new Location(locationName, locationLatitude, locationLongitude), totalItemPrice, transportationFee, serviceFee, receiverId, cart, jastiperId);
+
+        } catch (PSQLException e) {
+            System.out.println("Error PSQLException pada getOrderByJastiperId(); " + e.getMessage());
+            System.exit(0);
+        } catch (Exception e) {
+            System.out.println("Terjadi Error pada getOrderByJastiperId(); " + e.getMessage());
+            System.exit(0);
+        }
+        return null;
+    }
     public static Order getOrder(String orderId) {
-        if (orderId == null) return new Order();
         try {
             Connection connection = getConnection();
             Statement statement = connection.createStatement();
@@ -331,7 +361,7 @@ public class DatabaseUtil {
             System.out.println("Terjadi Error pada getOrder(): " + e.getMessage());
             System.exit(0);
         }
-        return new Order();
+        return null;
     }
 
     public static void changeOrderStatus(String orderId, OrderStatus status) {
@@ -395,7 +425,7 @@ public class DatabaseUtil {
             Instant now = Instant.now();
             Timestamp timestamp = Timestamp.from(now);
 
-            String query = String.format("INSERT INTO payments (id, order_id, status, amount, updates_at) VALUES ('%s', '%s', '%s', %f, ?);", payment.getPaymentId(), payment.getOrderId(), payment.getStatus(), payment.getAmount());
+            String query = String.format("INSERT INTO payments (id, order_id, status, amount, updated_at) VALUES ('%s', '%s', '%s', %f, ?);", payment.getPaymentId(), payment.getOrderId(), payment.getStatus(), payment.getAmount());
             PreparedStatement pstmt = connection.prepareStatement(query);
             pstmt.setObject(1, timestamp);
             pstmt.executeUpdate();
@@ -425,6 +455,31 @@ public class DatabaseUtil {
             System.out.println("Terjadi Error pada changePaymentStatus(): " + e.getMessage());
             System.exit(0);
         }
+    }
+
+    public static EscrowPayment getPaymentByOrderId(String orderId) {
+        try {
+            Connection connection = getConnection();
+            Statement statement = connection.createStatement();
+            String query = String.format("SELECT * FROM payments WHERE order_id = '%s'", orderId);
+            var resultSet = statement.executeQuery(query);
+            resultSet.next();
+            String paymentId = resultSet.getString("id");
+            String ordId = resultSet.getString("order_id");
+            String paymentStatus = resultSet.getString("status");
+            double amount = resultSet.getDouble("amount");
+            String updatedAt = resultSet.getString("updated_at");
+
+            return new EscrowPayment(paymentId, ordId, amount, PaymentStatus.valueOf(paymentStatus), updatedAt);
+
+        } catch (PSQLException e) {
+            System.out.println("Error PSQLException pada getPaymentByOrderId(): " + e.getMessage());
+            System.exit(0);
+        } catch (Exception e) {
+            System.out.println("Terjadi Error pada getPaymentByOrderId(): " + e.getMessage());
+            System.exit(0);
+        }
+        return null;
     }
 
 }
