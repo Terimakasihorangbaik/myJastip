@@ -3,8 +3,6 @@ package myjastip.payment;
 import myjastip.location.Location;
 import myjastip.storage.Cart;
 
-import java.util.HashMap;
-
 public class Order {
 	private String orderId;
 	private OrderStatus orderStatus;

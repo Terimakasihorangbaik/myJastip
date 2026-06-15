@@ -12,10 +12,7 @@ import javafx.scene.layout.VBox;
 import myjastip.db.DatabaseUtil;
 import myjastip.payment.Order;
 import myjastip.payment.OrderStatus;
-import myjastip.payment.PaymentStatus;
 import myjastip.users.Customer;
-
-import java.util.ArrayList;
 
 public class CustomerOrdersView {
     private final MyJastipWindow appWindow;

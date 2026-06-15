@@ -1,22 +1,15 @@
 package myjastip.app;
 
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
-import javafx.util.Pair;
 import myjastip.db.DatabaseUtil;
-import myjastip.payment.Order;
-import myjastip.storage.Cart;
 import myjastip.users.Customer;
 import myjastip.users.Jastiper;
 import myjastip.users.User;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 

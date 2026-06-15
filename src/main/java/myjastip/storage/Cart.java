@@ -1,7 +1,6 @@
 package myjastip.storage;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 public class Cart {
 	private ArrayList<CartItem> cartItems = new ArrayList<>();

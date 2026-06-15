@@ -1,5 +1,4 @@
 package myjastip.location;
-import java.util.Random;
 
 public class Location {
     private String locationName;

@@ -8,17 +8,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 import myjastip.db.DatabaseUtil;
 import myjastip.storage.Item;
 import myjastip.users.Customer;
-import myjastip.users.User;
 
 import java.util.ArrayList;
 
