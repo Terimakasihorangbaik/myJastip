@@ -3,22 +3,29 @@ package myjastip.app;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import myjastip.db.DatabaseUtil;
+import myjastip.location.InvalidCoordinateException;
+import myjastip.location.Location;
+import myjastip.payment.EmptyOrderException;
 import myjastip.payment.Order;
 import myjastip.payment.OrderStatus;
+import myjastip.payment.EscrowPayment;
 import myjastip.storage.CartItem;
 import myjastip.users.Customer;
 import myjastip.users.Jastiper;
 import myjastip.users.User;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.UUID;
+import java.util.function.UnaryOperator;
+import java.util.regex.Pattern;
 
 public class DashboardView {
 
@@ -31,42 +38,102 @@ public class DashboardView {
 //        createDashboardScene();
     }
 
-    public VBox cartsMenu() {
-        VBox cartBox = new VBox(12);
-        for (CartItem cartItem : ((Customer) user).getCart().getCartItems()) {
-            HBox itemBox = new HBox(12);
+    public GridPane cartsMenu() {
+        GridPane cartGrid = new GridPane();
+        cartGrid.setPadding( new Insets(10) );
+        cartGrid.setHgap( 16 );
+        cartGrid.setVgap( 16 );
 
-            Label itemLabel = new Label(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity());
+        VBox cartBox = new VBox(12);
+
+        Label nameLabel = new Label("Nama");
+        Label qtyLabel = new Label("Jumlah");
+        Label subTotalLabel = new Label("Subtotal");
+
+        cartGrid.add(nameLabel, 0, 0);
+        cartGrid.add(qtyLabel, 1, 0);
+        cartGrid.add(subTotalLabel,  2, 0);
+
+        Label totalPriceLabel = new Label(String.format("%.2f", ((Customer) user).getCart().calculateTotalPrice()));
+        Label transporationFeeLabel = new Label(String.format("%.2f", ((Customer) user).calculateTransporationFee()));
+        Label serviceFeeLabel = new Label(String.format("%.2f", ((Customer) user).calculateServiceFee()));
+        Label finalPriceLabel = new Label(String.format("%.2f", ((Customer) user).calculateFinalPrice()));
+
+        int n = ((Customer) user).getCart().getCartItems().size();
+
+        for (int i = 0; i < n; i++) {
+            CartItem cartItem = ((Customer) user).getCart().getCartItems().get(i);
+
+
+//            HBox itemBox = new HBox(12);
+
+//            Label itemLabel = new Label(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity() + " ( Rp." + cartItem.getSubTotal() + ")");
+//            itemLabel.setMinWidth(100);
+//            itemLabel.setMaxWidth(800);
+
+
+
+            Label itemNameLabel = new Label(cartItem.getItem().getItemName());
+            Label itemQtyLabel = new Label(String.format("%d", cartItem.getQuantity()));
+            Label itemSubTotalLabel = new Label(String.format("%.2f",  cartItem.getSubTotal()));
+
+
+
+            HBox addSubBox = new HBox(16);
             Button itemQtyAdd = new Button("+");
             itemQtyAdd.setFont(new Font("Consolas", 12));
             itemQtyAdd.setStyle("-fx-background-color: white; -fx-border-color: green; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
 
-            Button itemQtyMin = new Button("-");
-            itemQtyMin.setFont(new Font("Consolas", 12));
-            itemQtyMin.setStyle("-fx-background-color: white; -fx-border-color: red; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
+            Button itemQtySub = new Button("-");
+            itemQtySub.setFont(new Font("Consolas", 12));
+            itemQtySub.setStyle("-fx-background-color: white; -fx-border-color: red; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
 
-            itemLabel.setMinWidth(100);
-            itemLabel.setMaxWidth(800);
             itemQtyAdd.setOnAction(e -> {
-                cartItem.addQuanitity(1);
-                itemLabel.setText(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity());
+                cartItem.addQuantity(1);
+                itemQtyLabel.setText(String.format("%d", cartItem.getQuantity()));
+                itemSubTotalLabel.setText(String.format("%.2f",  cartItem.getSubTotal()));
+                totalPriceLabel.setText(String.format("%.2f", ((Customer) user).getCart().calculateTotalPrice()));
+                transporationFeeLabel.setText(String.format("%.2f", ((Customer) user).calculateTransporationFee()));
+                serviceFeeLabel.setText(String.format("%.2f", ((Customer) user).calculateServiceFee()));
+                finalPriceLabel.setText(String.format("%.2f", ((Customer) user).calculateFinalPrice()));
+
             });
-            itemQtyMin.setOnAction(e -> {
+            itemQtySub.setOnAction(e -> {
                 if (cartItem.getQuantity() > 1) {
-                    cartItem.subtractQuanitity(1);
-                    itemLabel.setText(cartItem.getItem().getItemName() + " x" + cartItem.getQuantity());
+                    cartItem.subtractQuantity(1);
+                    itemQtyLabel.setText(String.format("%d", cartItem.getQuantity()));
+                    itemSubTotalLabel.setText(String.format("%.2f",  cartItem.getSubTotal()));
                 } else {
                     ((Customer) user).getCart().removeItem(cartItem);
-                    cartBox.getChildren().removeIf(i -> i.equals(itemBox));
+                    cartGrid.getChildren().removeAll(itemNameLabel, addSubBox, itemSubTotalLabel);
                 }
+                totalPriceLabel.setText(String.format("%.2f", ((Customer) user).getCart().calculateTotalPrice()));
+                transporationFeeLabel.setText(String.format("%.2f", ((Customer) user).calculateTransporationFee()));
+                serviceFeeLabel.setText(String.format("%.2f", ((Customer) user).calculateServiceFee()));
+                finalPriceLabel.setText(String.format("%.2f", ((Customer) user).calculateFinalPrice()));
             });
 
-            itemBox.getChildren().addAll(itemLabel, itemQtyAdd, itemQtyMin);
+            Button b = new Button();
 
-            cartBox.getChildren().add(itemBox);
+            addSubBox.getChildren().addAll(itemQtyAdd, itemQtyLabel, itemQtySub);
+
+            cartGrid.add(itemNameLabel, 0, i+1);
+            cartGrid.add(addSubBox,  1, i+1);
+            cartGrid.add(itemSubTotalLabel, 2, i+1);
+
+
         }
+        cartGrid.add(new Label("Total Harga Barang"), 0, n+1);
+        cartGrid.add(new Label("Biaya Transportasi"), 0, n+2);
+        cartGrid.add(new Label("Biaya Layanan"),  0, n+3);
+        cartGrid.add(new Label("Total Harga Akhir"), 0, n+4);
 
-        return cartBox;
+        cartGrid.add(totalPriceLabel, 2, n+1);
+        cartGrid.add(transporationFeeLabel, 2, n+2);
+        cartGrid.add(serviceFeeLabel,  2, n+3);
+        cartGrid.add(finalPriceLabel, 2, n+4);
+
+        return cartGrid;
     }
 
     public VBox orderMenu() {
@@ -116,17 +183,89 @@ public class DashboardView {
 
         Label userTypeLabel = new Label("Akun: " + (user instanceof Customer ? "Customer" : "Jastiper"));
 
-        Label infoLabel = new Label("Ini adalah halaman Dashboard Utama.");
+//        Label infoLabel = new Label("Ini adalah halaman Dashboard Utama.");
+
+        Label balanceLabel = new Label();
+        balanceLabel.setText("Saldo: Rp." + new BigDecimal(String.valueOf(user.getBalance())).toPlainString());
 
         Button logoutButton = new Button("Logout");
         logoutButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-background-radius: 20px; -fx-border-radius: 20px;");
 
         logoutButton.setOnAction(e -> appWindow.showLoginScene());
 
+
+        layout.getChildren().addAll(welcomeLabel, userTypeLabel, balanceLabel);
+
         if (user instanceof Customer) {
+
+
+            Button paymentHistoryButton = new Button("Histori Pembayaran");
+            paymentHistoryButton.setStyle("-fx-background-color: #88FF74; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
+            paymentHistoryButton.setOnAction(e -> appWindow.showPaymentHistoryScene((Customer) user));
+
+
+            VBox addressSelectionMenu = new VBox();
+            Label addrSelectionLabel = new Label("isi alamat tujuan pesanan: ");
+//        addressSelectionMenu.setPrefWidth(500);
+            GridPane gp = new GridPane();
+
+            Label setAddressLabel = new Label("Alamat ");
+            Label setLatitudeLabel = new Label("Garis lintang ");
+            Label setLongitudeLabel = new Label("Garis bujur ");
+
+            TextField inputAddress = new TextField();
+            TextField inputLatitude = new TextField();
+            TextField inputLongitude = new TextField();
+
+            // Regex matches optional leading minus sign, optional digits, optional decimal point, and optional fractional digits
+            Pattern validEditingState = Pattern.compile("-?(\\d*\\.?\\d*)?");
+
+            UnaryOperator<TextFormatter.Change> filter = change -> {
+                String newText = change.getControlNewText();
+                if (validEditingState.matcher(newText).matches()) {
+                    return change; // Accept change
+                }
+                return null; // Reject change
+            };
+
+            TextFormatter<String> textFormatterLatitude = new TextFormatter<>(filter);
+            TextFormatter<String> textFormatterLongitude = new TextFormatter<>(filter);
+
+            inputLatitude.setTextFormatter(textFormatterLatitude);
+            inputLongitude.setTextFormatter(textFormatterLongitude);
+
+            // Retrieve the float value later
+            inputLatitude.setOnAction(e -> {
+                try {
+                    float value = Float.parseFloat(inputLatitude.getText());
+                    System.out.println("User entered: " + value);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Invalid float or empty string");
+                }
+            });
+
+            inputLongitude.setOnAction(e -> {
+                try {
+                    float value = Float.parseFloat(inputLatitude.getText());
+                    System.out.println("User entered: " + value);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Invalid float or empty string");
+                }
+            });
+
+            gp.add(setAddressLabel,  0, 1); gp.add(inputAddress,  1, 1);
+            gp.add(setLatitudeLabel, 0, 2); gp.add(inputLatitude, 1, 2);
+            gp.add(setLongitudeLabel,0, 3); gp.add(inputLongitude,1, 3);
+
+            addressSelectionMenu.getChildren().addAll(addrSelectionLabel, gp);
+
+
+
             Button storeButton = new Button("Toko");
             storeButton.setStyle("-fx-background-color: #88FF74; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
             storeButton.setOnAction(e -> appWindow.showStoreScene((Customer) user));
+
+
 
             ScrollPane storeScrollPane = new ScrollPane();
             storeScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -134,23 +273,41 @@ public class DashboardView {
             storeScrollPane.setFitToWidth(true);
             storeScrollPane.setContent(cartsMenu());
 
+            double totalPrice = ((Customer) user).calculateFinalPrice();
+
             Button orderButton = new Button("Buat Pesanan");
             orderButton.setStyle("-fx-background-color: #00FF00; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
 
             orderButton.setOnAction(e -> {
                 Customer customer = (Customer) user;
-                customer.createOrder();
-                ((VBox) storeScrollPane.getContent()).getChildren().clear();
+                try {
+                    if (!(inputAddress.getText().isEmpty() || inputLatitude.getText().isEmpty() || inputLongitude.getText().isEmpty())) {
+                        customer.setOrderLocation(inputAddress.getText(), Double.parseDouble(inputLatitude.getText()), Double.parseDouble(inputLatitude.getText()));
+                    } else {
+                        throw new InvalidAddressException("Isi Alamat dengan Lengkap!");
+                    }
+                    Order order = customer.createOrder();
+                    ((GridPane) storeScrollPane.getContent()).getChildren().clear();
+
+                    UUID uuid = UUID.randomUUID();
+                    EscrowPayment payment = new EscrowPayment(uuid.toString(), order.getOrderId(), order.getTotalBill());
+                    DatabaseUtil.insertPayment(payment);
+                    appWindow.showPaymentScene(customer, payment);
+                } catch (EmptyOrderException | InvalidAddressException | InvalidCoordinateException ex) {
+                    System.out.println("Error: " + ex.getMessage());
+                }
+
             });
 
             Button orderViewButton = new Button("Lihat Pesanan");
             orderViewButton.setStyle("-fx-background-color: #80BEFF; -fx-text-fill: black; -fx-background-radius: 20px; -fx-border-radius: 20px;");
             orderViewButton.setOnAction(e -> {
                 appWindow.showCustomerOrdersScene((Customer) user);
+
             });
 
 
-            layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, storeButton, storeScrollPane, orderButton, orderViewButton, logoutButton);
+            layout.getChildren().addAll(paymentHistoryButton, addressSelectionMenu, storeButton, storeScrollPane, orderButton, orderViewButton, logoutButton);
         }
         else {
             ScrollPane orderScrollPane = new ScrollPane();
@@ -165,7 +322,7 @@ public class DashboardView {
                 appWindow.showJastiperOrderScene((Jastiper) user);
             });
 
-            layout.getChildren().addAll(welcomeLabel, userTypeLabel, infoLabel, acceptedOrdersButton, orderScrollPane, logoutButton);
+            layout.getChildren().addAll(acceptedOrdersButton, orderScrollPane, logoutButton);
         }
         dashboardScene = new Scene(layout, 1200, 800);
     }

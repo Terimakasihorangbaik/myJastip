@@ -3,8 +3,6 @@ package myjastip.payment;
 import myjastip.location.Location;
 import myjastip.storage.Cart;
 
-import java.util.HashMap;
-
 public class Order {
 	private String orderId;
 	private OrderStatus orderStatus;
@@ -18,9 +16,6 @@ public class Order {
 	private double totalBill;
 	private Cart orderedCart;
 
-	public Order() {
-
-	}
 
 	public Order(String orderId, OrderStatus orderStatus, Location location, double totalItemPrice, double transportationFee, double serviceFee, String receiverId, Cart orderedCart) {
 		this.orderId = orderId;
@@ -31,9 +26,9 @@ public class Order {
 		this.serviceFee = serviceFee;
 		this.receiverId = receiverId;
 		this.orderedCart = orderedCart;
+		this.totalBill = this.totalItemPrice + this.transportationFee + this.serviceFee;
 	}
 
-	// ini overloading method
 	public Order(String orderId, OrderStatus orderStatus, Location location, double totalItemPrice, double transportationFee, double serviceFee, String receiverId, Cart orderedCart, String jastiperId) {
 		this.orderId = orderId;
 		this.orderStatus = orderStatus;
@@ -44,12 +39,8 @@ public class Order {
 		this.receiverId = receiverId;
 		this.orderedCart = orderedCart;
 		this.jastiperId = jastiperId;
+		this.totalBill = this.totalItemPrice + this.transportationFee + this.serviceFee;
 
-	}
-
-	public double calculateTotalBill() {
-                totalBill = totalItemPrice + transportationFee + serviceFee;
-		return totalBill;
 	}
 
 	public String getOrderId() {
@@ -101,11 +92,8 @@ public class Order {
 	}
 
 	public double getTotalBill() {
+		this.totalBill = this.totalItemPrice + this.transportationFee + this.serviceFee;
 		return totalBill;
-	}
-
-	public void setTotalBill(double totalBill) {
-		this.totalBill = totalBill;
 	}
 
 	public Cart getOrderedCart() {
@@ -122,5 +110,13 @@ public class Order {
 
 	public void setReceiverId(String receiverId) {
 		this.receiverId = receiverId;
+	}
+
+	public String getJastiperId() {
+		return jastiperId;
+	}
+
+	public void setJastiperId(String jastiperId) {
+		this.jastiperId = jastiperId;
 	}
 }

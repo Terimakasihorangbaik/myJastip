@@ -1,83 +1,52 @@
 package myjastip.users;
 
 import myjastip.db.DatabaseUtil;
+import myjastip.location.InvalidCoordinateException;
 import myjastip.location.Location;
-import myjastip.payment.Order;
-import myjastip.payment.OrderStatus;
-import myjastip.payment.Payable;
-import myjastip.payment.Payment;
+import myjastip.payment.*;
 import myjastip.storage.Cart;
 import myjastip.storage.CartItem;
 import myjastip.storage.Item;
 
+import java.util.List;
+import java.util.UUID;
+
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Customer extends User implements Payable {
-	private String address;
 
 	private Cart cart;
 	private Location orderLocation;
-	private ArrayList<Payment> paymentHistory;
-	private ArrayList<Order> orders;
+	private List<EscrowPayment> paymentHistory;
+	private final List<Order> orders;
 
-	public Customer() {
-		super();
-	}
-
-
-	public Customer(String userId, String name, String email, String password, String phoneNumber, String address, Cart cart, Location orderLocation, ArrayList<Payment> paymentHistory, ArrayList<Order> orders) {
-		super(userId, name, email, password, phoneNumber);
-		this.address = address;
-		this.cart = cart;
-		this.orderLocation = orderLocation;
-		this.paymentHistory = paymentHistory;
-		this.orders = orders;
+	public Customer(String userId, String name, String email, String password, String phoneNumber, double balance) {
+		super(userId, name, email, password, phoneNumber, balance);
+		this.cart = new Cart();
+		this.paymentHistory = new ArrayList<>();
+		this.orders = new ArrayList<>();
 	}
 
 	@Override
-	public void payment(double amount) {
-            try {
-
-                if (amount <= 0) {
-                    throw new IllegalArgumentException("Nominal pembayaran harus lebih dari 0");
-                }
-
-                Payment payment = new Payment();
-
-                payment.processPayment(amount, "SUCCESS");
-
-                paymentHistory.add(payment);
-
-                System.out.println("Pembayaran berhasil.");
-
-            } catch (IllegalArgumentException e) {
-
-                System.out.println("Error : " + e.getMessage());
-            }
+	public void pay(EscrowPayment payment) throws InsufficientBalanceException {
+		if (balance < payment.getAmount()) {
+			throw new InsufficientBalanceException("Saldo anda belum cukup untuk membayar pembayaran ini!");
+		} else {
+			payment.processPayment(payment.getAmount());
+			System.out.println("Pembayaran berhasil.");
+		}
 	}
 
 	@Override
-	public void refund(long orderId) {
+	public List<EscrowPayment> getPaymentHistory() {
+		paymentHistory.clear();
+		ArrayList<EscrowPayment> tempPayments = new ArrayList<>();
+		DatabaseUtil.insertPaymentArray(tempPayments);
+		tempPayments.stream()
+				.filter(payment -> DatabaseUtil.getOrder(payment.getOrderId()).getReceiverId().equals(userId))
+				.forEach(payment -> paymentHistory.add(payment));
 
-	}
-
-	@Override
-	public ArrayList<Payment> getPaymentHistory() {
 		return paymentHistory;
-	}
-
-	public ArrayList<Item> searchItem(String keyword) {
-            ArrayList<Item> hasilCari = new ArrayList<>();
-            for(CartItem cartItem : cart.getCartItems()){
-                if (cartItem.getItem().getItemName().toLowerCase().contains(keyword.toLowerCase())) {
-
-                    hasilCari.add(cartItem.getItem());
-                }
-            }
-            return hasilCari;
-           
 	}
 
 	public void addToCart(Item item, int qty) {
@@ -92,84 +61,84 @@ public class Customer extends User implements Payable {
 		}
 	}
 
-	public void createOrder() {
-		// jangan ubah ini
+	public Order createOrder() throws EmptyOrderException{
+
 		if (!cart.isCartEmpty()) {
-			DatabaseUtil.insertOrder(
+			UUID uuid = UUID.randomUUID();
+			Order order = new Order(
+					uuid.toString(),
 					OrderStatus.PENDING,
-					orderLocation.getLocationName(),
-					orderLocation.getLatitude(), orderLocation.getLongitude(),
-					cart.calculateTotalPrice(), cart.calculateTotalPrice() * 0.1, 10_000.0,
+					orderLocation,
+					cart.calculateTotalPrice(),
+					calculateTransporationFee(), calculateServiceFee(),
 					userId,
 					cart
 			);
+			DatabaseUtil.insertOrder(order);
 			cart.emptyCart();
 			System.out.println("Pesanan telah dibuat");
+			return order;
 		} else {
-			System.out.println("Pesanan Kosong");
+			throw new EmptyOrderException("Pesanan Kosong");
 		}
 
 	}
 
+	public double calculateTransporationFee() {
+		return cart.calculateTotalPrice() * 0.1;
+	}
+
+	public double calculateServiceFee() {
+		return cart.calculateTotalPrice() * 0.05;
+	}
+
+	public double calculateFinalPrice() {
+		return cart.calculateTotalPrice() + calculateTransporationFee() + calculateServiceFee();
+	}
+
+
 	public void cancelOrder(Order order) {
-		// jangan ubah ini
 		DatabaseUtil.changeOrderStatus(order.getOrderId(), OrderStatus.CANCELLED);
 		order.setOrderStatus(OrderStatus.CANCELLED);
-//			DatabaseUtil.insertOrdersByReceiverId(orders, this.getUserId());
+		EscrowPayment payment = DatabaseUtil.getPaymentByOrderId(order.getOrderId());
+
+		if (payment.getStatus() != PaymentStatus.UNFINISHED) {
+			payment.refundFunds();
+		} else {
+			DatabaseUtil.changePaymentStatus(payment.getPaymentId(), PaymentStatus.CANCELLED);
+		}
 	}
 
 	public void completeOrder(Order order) {
-		// jangan ubah ini
-		DatabaseUtil.removeOrder(order.getOrderId());
-//			DatabaseUtil.insertOrdersByReceiverId(orders, this.getUserId());
-	}
+		DatabaseUtil.changeOrderStatus(order.getOrderId(), OrderStatus.COMPLETED);
+		order.setOrderStatus(OrderStatus.COMPLETED);
 
-
-	public void rate(Jastiper service, int value) {
-		try {
-			if (value < 1 || value > 5) {
-				throw new IllegalArgumentException("Rating harus 1 - 5");
-			}
-			service.addRating(value);
-		} catch (IllegalArgumentException e) {
-			System.out.println(e.getMessage());
-		}
-	}
-
-	public String getAddress() {
-		return address;
+		EscrowPayment payment = DatabaseUtil.getPaymentByOrderId(order.getOrderId());
+		payment.releaseFunds();
 	}
 
 	public Cart getCart() {
 		return cart;
 	}
 
-	public void setAddress(String address) {
-            this.address = address;
+	public void setOrderLocation(String location, double latitude, double longitude) {
+		if ((latitude < -90 || latitude > 90) && (longitude < -180 || longitude > 180)) {
+			throw new InvalidCoordinateException("Koordinat tidak valid!");
+		}
+		if (latitude < -90 || latitude > 90) {
+			throw new InvalidCoordinateException("Latitude tidak valid!");
+		}
+		if (longitude < -180 || longitude > 180) {
+			throw new InvalidCoordinateException("Longitude tidak valid!");
+		}
+		this.orderLocation = new Location(location, latitude, longitude);
 	}
 
-	public void setCart(Cart cart) {
-		this.cart = cart;
-	}
-
-	public Location getOrderLocation() {
-		return orderLocation;
-	}
-
-	public void setOrderLocation(Location orderLocation) {
-		this.orderLocation = orderLocation;
-	}
-
-	public void setPaymentHistory(ArrayList<Payment> paymentHistory) {
-		this.paymentHistory = paymentHistory;
-	}
-
-	public ArrayList<Order> getOrders() {
+	public List<Order> getOrders() {
 		DatabaseUtil.insertOrdersByReceiverId(orders, userId);
 		return orders;
 	}
 
-	public void setOrders(ArrayList<Order> orders) {
-		this.orders = orders;
-	}
+
+
 }

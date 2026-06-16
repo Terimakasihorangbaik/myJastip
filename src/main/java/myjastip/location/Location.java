@@ -13,17 +13,19 @@ public class Location {
 
     @Override
     public String toString() {
-        return "(" + latitude + ", " + longitude + ")";
+        return locationName + " - (" + latitude + ", " + longitude + ")";
     }
 
     public void setCoordinate(double latitude, double longitude) {
         try {
-            if (latitude < -90 || latitude > 90) {
-                throw new IllegalArgumentException("Latitude tidak valid");
+            if ((latitude < -90 || latitude > 90) && (longitude < -180 || longitude > 180)) {
+                throw new InvalidCoordinateException("Koordinat tidak valid!");
             }
-
+            if (latitude < -90 || latitude > 90) {
+                throw new InvalidCoordinateException("Latitude tidak valid!");
+            }
             if (longitude < -180 || longitude > 180) {
-                throw new IllegalArgumentException("Longitude tidak valid");
+                throw new InvalidCoordinateException("Longitude tidak valid!");
             }
 
             this.latitude = latitude;
@@ -44,5 +46,17 @@ public class Location {
 
     public double getLongitude() {
         return longitude;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 }

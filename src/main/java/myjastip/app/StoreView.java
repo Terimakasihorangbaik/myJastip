@@ -8,17 +8,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 import myjastip.db.DatabaseUtil;
 import myjastip.storage.Item;
 import myjastip.users.Customer;
-import myjastip.users.User;
 
 import java.util.ArrayList;
 
@@ -36,15 +31,7 @@ public class StoreView {
     }
     public VBox itemPane(Item item) {
         VBox itemBox = new VBox();
-//        itemPane.setStyle("-fx-background-color: black;");
         itemBox.setMaxWidth(200);
-//        itemBox.setPrefSize(100,100);
-//        Circle circle = new Circle(50,Color.BLUE);
-//        circle.relocate(20, 20);
-//        Rectangle rectangle = new Rectangle(100,100, Color.RED);
-//        rectangle.relocate(70,70);
-
-//        Image image = new Image("https://mit-press-new-us.imgix.net/covers/9780262046305.jpg?auto=format&w=145");
 
         Image image = new Image(item.getImageUrl());
         ImageView imageView = new ImageView(image);
@@ -70,6 +57,9 @@ public class StoreView {
                 orderButton.setDisable(true);
             }
         );
+        if (customer.getCart().isItemInCart(item)) {
+            orderButton.setDisable(true);
+        }
 
 //        itemPane.getChildren().addAll(sp);
         itemBox.getChildren().addAll(sp, itemName, itemPrice, itemStoreLocation, itemCategories, orderButton);

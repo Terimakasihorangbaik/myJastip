@@ -1,6 +1,5 @@
 package myjastip.storage;
 
-import java.sql.Array;
 import java.util.ArrayList;
 
 public class Item {

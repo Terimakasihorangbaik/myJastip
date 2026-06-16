@@ -1,9 +1,9 @@
 package myjastip.payment;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface Payable {
-    void payment(double amount);
-    void refund (long orderId);
-    ArrayList<Payment> getPaymentHistory();
+    void pay(EscrowPayment payment) throws InsufficientBalanceException ;
+    List<EscrowPayment> getPaymentHistory();
 }

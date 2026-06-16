@@ -14,8 +14,6 @@ import myjastip.payment.Order;
 import myjastip.payment.OrderStatus;
 import myjastip.users.Customer;
 
-import java.util.ArrayList;
-
 public class CustomerOrdersView {
     private final MyJastipWindow appWindow;
     private Scene customerOrdersScene;
@@ -30,7 +28,6 @@ public class CustomerOrdersView {
         for (Order order : customer.getOrders()) {
             HBox orderMenu = new HBox(12);
 
-            Label destinationLabel = new Label("Tujuan: " + order.getLocation().getLocationName());
             Label statusLabel = new Label("Status: " + order.getOrderStatus());
             Label locationLabel = new Label("Lokasi: " + order.getLocation());
 
@@ -39,9 +36,10 @@ public class CustomerOrdersView {
             rightControl.setAlignment(Pos.CENTER_RIGHT);
 
             Button cancelOrderButton = new Button("Batalkan Pesanan");
-            if (order.getOrderStatus() == OrderStatus.DELIVERED || order.getOrderStatus() == OrderStatus.CANCELLED) {
+            if (order.getOrderStatus() == OrderStatus.COMPLETED || order.getOrderStatus() == OrderStatus.DELIVERED || order.getOrderStatus() == OrderStatus.CANCELLED) {
                 cancelOrderButton.setDisable(true);
             }
+
             cancelOrderButton.setOnAction(e -> {
                 customer.cancelOrder(order);
                 cancelOrderButton.setDisable(true);
@@ -54,7 +52,9 @@ public class CustomerOrdersView {
                 finishOrderButton.setDisable(true);
             }
             finishOrderButton.setOnAction(e -> {
-                orderBox.getChildren().remove(orderMenu);
+                cancelOrderButton.setDisable(true);
+                finishOrderButton.setDisable(true);
+                statusLabel.setText("Status: " + OrderStatus.COMPLETED);
                 customer.completeOrder(order);
             });
 
@@ -64,7 +64,7 @@ public class CustomerOrdersView {
             VBox orderSpec = new VBox();
 
 
-            orderSpec.getChildren().addAll(destinationLabel, statusLabel, locationLabel);
+            orderSpec.getChildren().addAll(statusLabel, locationLabel);
             orderMenu.getChildren().addAll(orderSpec, rightControl);
             orderBox.getChildren().add(orderMenu);
         }
@@ -89,7 +89,7 @@ public class CustomerOrdersView {
         Button logoutButton = new Button("Kembali ke Dashboard");
         logoutButton.setStyle("-fx-background-color: #4067e4; -fx-text-fill: white;  -fx-background-radius: 20px; -fx-border-radius: 20px;");
 
-        logoutButton.setOnAction(e -> appWindow.showDashboardScene(customer));
+        logoutButton.setOnAction(e -> appWindow.showDashboardScene(DatabaseUtil.getUser(customer.getUserId())));
 
         layout.getChildren().addAll(welcomeLabel, orderHistoryScrollPane, logoutButton);
         customerOrdersScene = new Scene(layout, 1200, 800);

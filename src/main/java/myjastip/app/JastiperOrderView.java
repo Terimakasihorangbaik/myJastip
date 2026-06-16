@@ -12,7 +12,6 @@ import javafx.scene.layout.VBox;
 import myjastip.db.DatabaseUtil;
 import myjastip.payment.Order;
 import myjastip.payment.OrderStatus;
-import myjastip.users.Customer;
 import myjastip.users.Jastiper;
 
 public class JastiperOrderView {
@@ -30,7 +29,7 @@ public class JastiperOrderView {
         for (Order order : jastiper.getAcceptedOrders()) {
             HBox orderMenu = new HBox(12);
 
-            Label destinationLabel = new Label("Tujuan: " + order.getLocation().getLocationName());
+            Label destinationLabel = new Label("Penerima: " + DatabaseUtil.getUser(order.getReceiverId()));
             Label statusLabel = new Label("Status: " + order.getOrderStatus());
             Label locationLabel = new Label("Lokasi: " + order.getLocation());
 
@@ -40,9 +39,14 @@ public class JastiperOrderView {
 
             Button finishDeliveryButton = new Button("Selesaikan Pengiriman");
 
+            if (order.getOrderStatus() == OrderStatus.DELIVERED || order.getOrderStatus() == OrderStatus.COMPLETED) {
+                finishDeliveryButton.setDisable(true);
+            }
+
             finishDeliveryButton.setOnAction(e -> {
                 jastiper.finishDelivery(order);
-                orderBox.getChildren().remove(orderMenu);
+                finishDeliveryButton.setDisable(true);
+//                orderBox.getChildren().remove(orderMenu);
                 statusLabel.setText("Status: " + OrderStatus.DELIVERED);
             });
 
@@ -82,7 +86,7 @@ public class JastiperOrderView {
         jastiperOrderScene = new Scene(layout, 1200, 800);
     }
 
-    public Scene getCustomerOrdersScene() {
+    public Scene getJastiperOrderScene() {
         createJastiperOrderScene();
         return jastiperOrderScene;
     }
