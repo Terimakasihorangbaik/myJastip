@@ -2,6 +2,7 @@ package myjastip.app.admin;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -172,9 +173,18 @@ public class EditUsersLayout {
                 grid.add(new Label("Saldo:"), 0, 4);
                 grid.add(balanceInput, 1, 4);
 
+                Node editButtonNode = dialog.getDialogPane().lookupButton(editButtonType);
+
+                editButtonNode.disableProperty().bind(
+                        usernameInput.textProperty().isEmpty()
+                        .or(emailInput.textProperty().isEmpty())
+                        .or(passwordInput.textProperty().isEmpty())
+                        .or(phoneNumberInput.textProperty().isEmpty())
+                        .or(balanceInput.textProperty().isEmpty())
+                );
+
                 dialog.setResultConverter(dialogButton -> {
                     if (dialogButton == editButtonType) {
-                        DatabaseUtil.changeUser(user.getUserId(), usernameInput.getText(), emailInput.getText(), passwordInput.getText(), phoneNumberInput.getText(), Double.parseDouble(balanceInput.getText()));
                         if (user.getUserType() == UserTypes.CUSTOMER) {
                             return new Pair<>(user.getUserId(), new Customer(user.getUserId(), usernameInput.getText(), emailInput.getText(), passwordInput.getText(), phoneNumberInput.getText(), Double.parseDouble(balanceInput.getText())));
                         } else if (user.getUserType() == UserTypes.JASTIPER) {
@@ -192,6 +202,7 @@ public class EditUsersLayout {
                 Optional<Pair<String, User>> result = dialog.showAndWait();
 
                 result.ifPresent(pair -> {
+                    admin.editUser(pair.getValue());
                     userNameLabel.setText("Nama: " + pair.getValue().getName());
                     emailLabel.setText("Email: " + pair.getValue().getEmail());
                     passwordLabel.setText("Password: " + pair.getValue().getPassword());

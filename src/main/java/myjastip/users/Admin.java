@@ -1,6 +1,7 @@
 package myjastip.users;
 
 import myjastip.db.DatabaseUtil;
+import myjastip.payment.Order;
 import myjastip.storage.Item;
 
 public class Admin extends User {
@@ -16,14 +17,12 @@ public class Admin extends User {
         DatabaseUtil.insertItem(item);
     }
 
-    public void editUser(Item item) {
-
-    }
-    public void addUser(Item item) {
-
+    public void editUser(User user) {
+        DatabaseUtil.changeUser(user.getUserId(), user.getName(), user.getEmail(), user.getPassword(), user.getPhoneNumber(), user.getBalance());
     }
 
-    public void removeOrderAndPayment() {
-
+    public void removeOrderAndPayment(Order order) {
+        DatabaseUtil.removeOrder(order.getOrderId());
+        DatabaseUtil.removePayment(DatabaseUtil.getPaymentByOrderId(order.getOrderId()).getPaymentId());
     }
 }

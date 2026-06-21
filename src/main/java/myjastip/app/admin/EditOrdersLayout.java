@@ -115,8 +115,7 @@ public class EditOrdersLayout {
             deleteOrderButton.setMinWidth(200);
 
             deleteOrderButton.setOnAction(e -> {
-                DatabaseUtil.removeOrder(order.getOrderId());
-                DatabaseUtil.removePayment(DatabaseUtil.getPaymentByOrderId(order.getOrderId()).getPaymentId());
+                admin.removeOrderAndPayment(order);
                 orderBox.getChildren().remove(orderMenu);
             });
             deleteOrderButton.setStyle(
