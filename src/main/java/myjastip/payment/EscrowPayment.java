@@ -4,10 +4,10 @@ import myjastip.db.DatabaseUtil;
 import myjastip.users.User;
 
 public class EscrowPayment {
-    protected String paymentId;
-    protected String orderId;
-    protected double amount;
-    protected PaymentStatus status;
+    private String paymentId;
+    private String orderId;
+    private double amount;
+    private PaymentStatus status;
 
     public EscrowPayment(String paymentId, String orderId, double amount) {
         this.paymentId = paymentId;
