@@ -147,7 +147,12 @@ public class AuthView {
                     throw new InvalidAuthException("Isi Username dan Password!");
                 }
             } catch (InvalidAuthException | UserNotFoundException ex) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("MyJastip Auth");
+                alert.setHeaderText(null);
+                alert.setContentText(ex.getMessage());
                 System.out.println("Error: " + ex.getMessage());
+                alert.showAndWait();
             }
 
         });
@@ -273,12 +278,36 @@ public class AuthView {
         TextField balanceInput = new TextField();
         balanceInput.setPromptText("Saldo Awal");
         balanceInput.setTextFormatter(new TextFormatter<>(decimalFilter));
+        balanceInput.setStyle(inputFieldStyle);
+        balanceInput.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                balanceInput.setStyle(inputFieldFocusStyle);
+            } else {
+                balanceInput.setStyle(inputFieldStyle);
+            }
+        });
 
         Button registerButton = new Button("Daftar Akun");
         registerButton.setMaxWidth(Double.MAX_VALUE);
-        registerButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
+        registerButton.setStyle(
+            "-fx-font-family: 'Inter';" +
+            "-fx-font-size: 16px;" +
+            "-fx-font-weight: 600;" +
+            "-fx-text-fill: white;" +
+            "-fx-background-color: linear-gradient(to right, #6B9E7E, #2D5F52);" +
+            "-fx-background-radius: 8;" +
+            "-fx-padding: 14 24 14 24;" +
+            "-fx-cursor: hand;" +
+            "-fx-effect: dropshadow(gaussian, rgba(107,158,126,0.35), 14, 0, 0, 4);"
+        );
 
         Hyperlink loginLink = new Hyperlink("Sudah punya akun? Login");
+        loginLink.setStyle(
+            "-fx-font-family: 'Inter';" +
+            "-fx-font-size: 14px;" +
+            "-fx-text-fill: #8aad7a;" +
+            "-fx-border-color: transparent;"
+        );
 
         loginLink.setOnAction(e -> appWindow.showLoginScene());
         registerButton.setOnAction(e -> {
@@ -313,7 +342,12 @@ public class AuthView {
 
                 }
             } catch (InvalidAuthException ex) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("MyJastip Auth");
+                alert.setHeaderText(null);
+                alert.setContentText(ex.getMessage());
                 System.out.println("Error: " + ex.getMessage());
+                alert.showAndWait();
             }
         });
 

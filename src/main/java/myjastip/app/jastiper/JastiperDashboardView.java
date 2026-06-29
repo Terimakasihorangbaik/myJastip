@@ -10,6 +10,7 @@ import myjastip.app.MyJastipWindow;
 import myjastip.db.DatabaseUtil;
 import myjastip.payment.Order;
 import myjastip.payment.OrderStatus;
+import myjastip.payment.PaymentStatus;
 import myjastip.storage.CartItem;
 import myjastip.users.Jastiper;
 
@@ -36,6 +37,7 @@ public class JastiperDashboardView {
 
         for (Order order : orders) {
             if (order.getOrderStatus() != OrderStatus.PENDING) continue;
+            if (DatabaseUtil.getPaymentByOrderId(order.getOrderId()).getStatus() == PaymentStatus.UNFINISHED) continue;
             HBox orderMenu = new HBox(16);
 
             Label idLabel = new Label("ID: " + order.getOrderId());
@@ -128,31 +130,20 @@ public class JastiperDashboardView {
             HBox.setHgrow(rightControl, Priority.ALWAYS);
             rightControl.setAlignment(Pos.BOTTOM_RIGHT);
 
-            Button finishDeliveryButton = new Button("Terima Pengiriman");
+            Button acceptButton = new Button("Terima Pengiriman");
 
             if (order.getOrderStatus() == OrderStatus.DELIVERED || order.getOrderStatus() == OrderStatus.COMPLETED) {
-                finishDeliveryButton.setDisable(true);
+                acceptButton.setDisable(true);
             }
 
-            finishDeliveryButton.setOnAction(e -> {
-                jastiper.finishDelivery(order);
-                finishDeliveryButton.setDisable(true);
-//                orderBox.getChildren().remove(orderMenu);
-                statusLabel.setText(order.getOrderStatus().toString());
-                statusLabel.setStyle(
-                        "-fx-font-family: 'Inter';" +
-                                "-fx-font-size: 12px;" +
-                                "-fx-font-weight: 600;" +
-                                "-fx-text-fill: #4ade80;" +
-                                "-fx-background-color: rgba(34, 197, 94, 0.15);" +
-                                "-fx-background-radius: 100;" +
-                                "-fx-padding: 4 12 4 12;"
-                );
+            acceptButton.setOnAction(e -> {
+                orderBox.getChildren().remove(orderMenu);
+                jastiper.acceptOrder(order);
             });
 
-            rightControl.getChildren().add(finishDeliveryButton);
+            rightControl.getChildren().add(acceptButton);
 
-            finishDeliveryButton.setStyle(
+            acceptButton.setStyle(
                     "-fx-font-family: 'Inter';" +
                             "-fx-font-size: 13px;" +
                             "-fx-font-weight: 600;" +
@@ -335,7 +326,7 @@ public class JastiperDashboardView {
         // Generate individual interactive navigation nodes
         Button btnDashboard = createNavButton("Dashboard");
         btnDashboard.setStyle(activeNavStyle);
-        Button btnOrders = createNavButton("Lihat Pesanan");
+        Button btnOrders = createNavButton("Lihat Pesanan Diterima");
         btnOrders.setStyle(defaultNavStyle);
 
 //        // Attach specialized view-swapping actions to button click contexts

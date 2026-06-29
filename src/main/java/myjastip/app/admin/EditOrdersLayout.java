@@ -175,7 +175,7 @@ public class EditOrdersLayout {
         layout.setPadding(new Insets(40));
         layout.setAlignment(Pos.CENTER);
 
-        Label titleLabel = new Label("Edit Pesanan");
+        Label titleLabel = new Label("Hapus Pesanan");
         titleLabel.setStyle(
             "-fx-font-family: 'Inter';" +
             "-fx-font-size: 32px;" +

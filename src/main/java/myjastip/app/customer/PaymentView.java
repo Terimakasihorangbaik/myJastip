@@ -137,6 +137,11 @@ public class PaymentView {
             try {
                 customer.pay(payment);
             } catch (InsufficientBalanceException ex) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("MyJastip Order");
+                alert.setHeaderText(null);
+                alert.setContentText(ex.getMessage());
+                alert.showAndWait();
                 System.out.println("Error : " + ex.getMessage());
             } finally {
                 appWindow.showCustomerDashboardScene((Customer) DatabaseUtil.getUser(customer.getUserId()));

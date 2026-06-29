@@ -60,8 +60,7 @@ public class Customer extends User implements Payable {
 		}
 	}
 
-	public Order createOrder() throws EmptyOrderException{
-
+	public Order createOrder() throws EmptyOrderException {
 		if (!cart.isCartEmpty()) {
 			UUID uuid = UUID.randomUUID();
 			Order order = new Order(
@@ -78,7 +77,7 @@ public class Customer extends User implements Payable {
 			System.out.println("Pesanan telah dibuat");
 			return order;
 		} else {
-			throw new EmptyOrderException("Pesanan Kosong");
+			throw new EmptyOrderException("Pesanan Kosong!");
 		}
 
 	}
@@ -120,7 +119,7 @@ public class Customer extends User implements Payable {
 		return cart;
 	}
 
-	public void setOrderLocation(String location, double latitude, double longitude) {
+	public void setOrderLocation(String location, double latitude, double longitude) throws InvalidCoordinateException {
 		if ((latitude < -90 || latitude > 90) && (longitude < -180 || longitude > 180)) {
 			throw new InvalidCoordinateException("Koordinat tidak valid!");
 		}

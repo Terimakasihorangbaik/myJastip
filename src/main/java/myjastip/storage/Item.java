@@ -86,6 +86,7 @@ public class Item {
 	}
 
 	public String getCategoriesAsString() {
+		if (categories == null) return "";
 		if (categories.isEmpty()) return "";
 		List<String> arrCategories = new ArrayList<>();
 		for (String category : categories) {
@@ -95,7 +96,7 @@ public class Item {
 		return "[" + categoryString + "]";
 	}
 
-	public void setCategories(ArrayList<String> categories) {
+	public void setCategories(List<String> categories) {
 		this.categories = categories;
 	}
 

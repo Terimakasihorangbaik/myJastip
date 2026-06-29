@@ -1,6 +1,7 @@
 package myjastip.app.admin;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -108,6 +109,10 @@ public class EditItemLayout {
         Button editButton = new Button("Edit");
 
         editButton.setOnAction(e -> {
+            String itemId = item.getItemId();
+            Item item1 = DatabaseUtil.getItem(itemId);
+            if (item1 == null) return;
+
             Dialog<Pair<String, Item>> dialog = new Dialog<>();
             dialog.setTitle("myJastip Editor");
             dialog.setHeaderText("Edit Item");
@@ -129,11 +134,11 @@ public class EditItemLayout {
 
             TextField nameInput = new TextField();
             nameInput.setPromptText("Nama");
-            nameInput.setText(item.getItemName());
+            nameInput.setText(item1.getItemName());
 
             TextField descriptionInput = new TextField();
             descriptionInput.setPromptText("Deskripsi");
-            descriptionInput.setText(item.getDescription());
+            descriptionInput.setText(DatabaseUtil.getItem(item1.getItemId()).getDescription());
 
             UnaryOperator<TextFormatter.Change> decimalFilter = change -> {
                 String newText = change.getControlNewText();
@@ -146,20 +151,20 @@ public class EditItemLayout {
             TextField priceInput = new TextField();
             priceInput.setPromptText("Harga");
             priceInput.setTextFormatter(new TextFormatter<>(decimalFilter));
-            priceInput.setText(new BigDecimal(String.valueOf(item.getBasePrice())).toPlainString());
+            priceInput.setText(new BigDecimal(String.valueOf(item1.getBasePrice())).toPlainString());
 
 
             TextField storeLocationInput = new TextField();
             storeLocationInput.setPromptText("Alamat Toko");
-            storeLocationInput.setText(item.getStoreLocationName());
+            storeLocationInput.setText(item1.getStoreLocationName());
 
             TextField categoryInput = new TextField();
             categoryInput.setPromptText("Kategori");
-            categoryInput.setText(item.getCategoriesAsString());
+            categoryInput.setText(item1.getCategoriesAsString());
 
             TextField imageURLInput = new TextField();
             imageURLInput.setPromptText("URL Gambar");
-            imageURLInput.setText(item.getImageUrl());
+            imageURLInput.setText(item1.getImageUrl());
 
 
             grid.add(new Label("Nama:"), 0, 0);
@@ -181,21 +186,25 @@ public class EditItemLayout {
                 nameInput.textProperty().isEmpty()
                 .or(priceInput.textProperty().isEmpty())
                 .or(storeLocationInput.textProperty().isEmpty())
+                .or(imageURLInput.textProperty().isEmpty())
             );
 
             dialog.setResultConverter(dialogButton -> {
                 if (dialogButton == editButtonType) {
-                    Gson gson = new Gson();
-                    Type listType = new TypeToken<List<String>>(){}.getType();
-                    List<String> categories = gson.fromJson(categoryInput.getText(), listType);
 
-                    double itemPriceParsed = priceInput.getText().isEmpty() ? 0 : Double.parseDouble(priceInput.getText());
+                    List<String> categories = new ArrayList<>();
+                    try {
+                        Gson gson = new Gson();
+                        Type listType = new TypeToken<List<String>>(){}.getType();
+                        categories = gson.fromJson(categoryInput.getText(), listType);
 
-                    if (categories == null) {
+                    } catch (JsonSyntaxException ex) {
                         categories = new ArrayList<>();
                     }
+                    double itemPriceParsed = priceInput.getText().isEmpty() ? 0 : Double.parseDouble(priceInput.getText());
 
                     return new Pair<>(item.getItemId(), new Item(item.getItemId(), nameInput.getText(), descriptionInput.getText(), itemPriceParsed, storeLocationInput.getText(), categories, imageURLInput.getText()));
+
                 }
                 return null;
             });
@@ -209,24 +218,28 @@ public class EditItemLayout {
                 try {
                     imageView.setImage(new Image(pair.getValue().getImageUrl()));
                 } catch (IllegalArgumentException ex) {
+                    imageView.setImage(new Image(defaultImageURL));
                     System.out.println("Error: " + ex.getMessage());
                 } finally {
                     admin.editItem(pair.getValue());
                     itemName.setText(pair.getValue().getItemName());
+                    itemDescription.setText(pair.getValue().getDescription());
                     itemPrice.setText("Rp" + pair.getValue().getBasePrice());
                     itemStoreLocation.setText(pair.getValue().getStoreLocationName());
                     itemCategories.getChildren().clear();
-                    for (String category : pair.getValue().getCategories()) {
-                        Label catoegyLabel = new Label(category);
-                        catoegyLabel.setStyle(
-                                "-fx-font-family: 'Inter';" +
-                                        "-fx-font-size: 11px;" +
-                                        "-fx-text-fill: #B5C48E;" +
-                                        "-fx-background-color: rgba(107, 158, 126, 0.1);" +
-                                        "-fx-background-radius: 100;" +
-                                        "-fx-padding: 2 8 2 8;"
-                        );
-                        itemCategories.getChildren().add(catoegyLabel);
+                    if (pair.getValue().getCategories() != null) {
+                        for (String category : pair.getValue().getCategories()) {
+                            Label categoryLabel = new Label(category);
+                            categoryLabel.setStyle(
+                                    "-fx-font-family: 'Inter';" +
+                                            "-fx-font-size: 11px;" +
+                                            "-fx-text-fill: #B5C48E;" +
+                                            "-fx-background-color: rgba(107, 158, 126, 0.1);" +
+                                            "-fx-background-radius: 100;" +
+                                            "-fx-padding: 2 8 2 8;"
+                            );
+                            itemCategories.getChildren().add(categoryLabel);
+                        }
                     }
 
                 }
@@ -397,19 +410,22 @@ public class EditItemLayout {
                 nameInput.textProperty().isEmpty()
                 .or(priceInput.textProperty().isEmpty())
                 .or(storeLocationInput.textProperty().isEmpty())
+                .or(imageURLInput.textProperty().isEmpty())
             );
 
             dialog.setResultConverter(dialogButton -> {
                 if (dialogButton == editButtonType) {
-                    Gson gson = new Gson();
-                    Type listType = new TypeToken<List<String>>(){}.getType();
-                    List<String> categories = gson.fromJson(categoryInput.getText(), listType);
+                    List<String> categories;
+                    try {
+                        Gson gson = new Gson();
+                        Type listType = new TypeToken<List<String>>(){}.getType();
+                        categories = gson.fromJson(categoryInput.getText(), listType);
 
-                    double itemPrice = priceInput.getText().isEmpty() ? 0 : Double.parseDouble(priceInput.getText());
-
-                    if (categories == null) {
+                    } catch (JsonSyntaxException ex) {
                         categories = new ArrayList<>();
                     }
+                    double itemPrice = priceInput.getText().isEmpty() ? 0 : Double.parseDouble(priceInput.getText());
+
 
                     UUID uuid = UUID.randomUUID();
                     String itemId = uuid.toString();
@@ -426,7 +442,7 @@ public class EditItemLayout {
 
             result.ifPresent(pair -> {
                 admin.addItem(pair.getValue());
-                tilePane.getChildren().addAll(itemPane(pair.getValue()));
+                tilePane.getChildren().add(itemPane(pair.getValue()));
             });
         });
         addButton.setStyle(

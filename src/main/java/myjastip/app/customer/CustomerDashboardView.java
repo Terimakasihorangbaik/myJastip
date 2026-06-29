@@ -13,6 +13,7 @@ import myjastip.location.InvalidCoordinateException;
 import myjastip.payment.EmptyOrderException;
 import myjastip.payment.EscrowPayment;
 import myjastip.payment.Order;
+import myjastip.payment.OrderStatus;
 import myjastip.storage.CartItem;
 import myjastip.users.Customer;
 
@@ -464,12 +465,16 @@ public class CustomerDashboardView {
 
         orderButton.setOnAction(e -> {
             try {
+                if (customer.getCart().isCartEmpty()) {
+                    throw new EmptyOrderException("Pesanan Kosong!");
+                }
                 if (!(inputAddress.getText().isEmpty() || inputLatitude.getText().isEmpty() || inputLongitude.getText().isEmpty())) {
-                    customer.setOrderLocation(inputAddress.getText(), Double.parseDouble(inputLatitude.getText()), Double.parseDouble(inputLatitude.getText()));
+                    customer.setOrderLocation(inputAddress.getText(), Double.parseDouble(inputLatitude.getText()), Double.parseDouble(inputLongitude.getText()));
                 } else {
                     throw new InvalidAddressException("Isi Alamat dengan Lengkap!");
                 }
                 Order order = customer.createOrder();
+
 //                ((GridPane) storeScrollPane.getContent()).getChildren().clear();
 
                 UUID uuid = UUID.randomUUID();
@@ -477,6 +482,11 @@ public class CustomerDashboardView {
                 DatabaseUtil.insertPayment(payment);
                 appWindow.showPaymentScene(customer, payment);
             } catch (EmptyOrderException | InvalidAddressException | InvalidCoordinateException ex) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("MyJastip Order");
+                alert.setHeaderText(null);
+                alert.setContentText(ex.getMessage());
+                alert.showAndWait();
                 System.out.println("Error: " + ex.getMessage());
             }
 

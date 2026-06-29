@@ -1,6 +1,7 @@
 package myjastip.app;
 
 import javafx.application.Application;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import myjastip.app.admin.AdminDashboardView;
 import myjastip.app.customer.CustomerDashboardView;
@@ -31,6 +32,9 @@ public class MyJastipWindow extends Application {
         this.primaryStage = stage;
         this.primaryStage.setResizable(false);
         this.primaryStage.setTitle("myJastip");
+
+        Image icon = new Image(getClass().getResourceAsStream("/favicon.png"));
+        this.primaryStage.getIcons().add(icon);
 
         this.authView = new AuthView(this);
 //        this.dashboardView = new DashboardView(this);

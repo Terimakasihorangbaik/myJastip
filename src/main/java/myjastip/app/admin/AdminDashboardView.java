@@ -20,29 +20,6 @@ public class AdminDashboardView {
     private EditUsersLayout editUsersLayout;
     private EditOrdersLayout editOrdersLayout;
 
-
-    String inputFieldStyle =
-        "-fx-font-family: 'Inter';" +
-        "-fx-font-size: 15px;" +
-        "-fx-text-fill: #f1f5f0;" +
-        "-fx-prompt-text-fill: #6b8570;" +
-        "-fx-background-color: rgba(255, 255, 255, 0.06);" +
-        "-fx-background-radius: 8;" +
-        "-fx-border-color: rgba(255, 255, 255, 0.12);" +
-        "-fx-border-radius: 8;" +
-        "-fx-padding: 12 16 12 16;";
-    String inputFieldFocusStyle =
-        "-fx-font-family: 'Inter';" +
-        "-fx-font-size: 15px;" +
-        "-fx-text-fill: #f1f5f0;" +
-        "-fx-prompt-text-fill: #6b8570;" +
-        "-fx-background-color: rgba(255, 255, 255, 0.1);" +
-        "-fx-background-radius: 8;" +
-        "-fx-border-color: #8aad7a;" +
-        "-fx-border-radius: 8;" +
-        "-fx-padding: 12 16 12 16;" +
-        "-fx-effect: dropshadow(gaussian, rgba(107,158,126,0.15), 6, 0, 0, 0);";
-
     public AdminDashboardView(MyJastipWindow appWindow) {
         this.appWindow = appWindow;
     }
@@ -150,7 +127,7 @@ public class AdminDashboardView {
         btnItemEdit.setStyle(defaultNavStyle);
         Button btnUserEdit = createNavButton("Edit User");
         btnUserEdit.setStyle(defaultNavStyle);
-        Button btnOrderEdit = createNavButton("Edit Pesanan");
+        Button btnOrderEdit = createNavButton("Hapus Pesanan");
         btnOrderEdit.setStyle(defaultNavStyle);
 
 //        // Attach specialized view-swapping actions to button click contexts

@@ -4,8 +4,6 @@ import javafx.application.Application;
 import myjastip.app.MyJastipWindow;
 
 import java.awt.*;
-import java.util.InputMismatchException;
-import java.util.Scanner;
 
 /*
 

@@ -21,21 +21,18 @@ import java.util.List;
 
 public class DatabaseUtil {
     public static Connection getConnection() throws SQLException {
-        String URL = "jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?user=postgres.stmeucoddhqzfblbtrne&password=" + System.getenv("SUPABASE_DB_PASSWORD");
+        String URL = String.format("jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?user=postgres.stmeucoddhqzfblbtrne&password=%s", System.getenv("SUPABASE_DB_PASSWORD"));
         return DriverManager.getConnection(URL);
     }
 
-    public static void insertUser(User user) throws InvalidAuthException {
+    public static void insertUser(User user) {
         try {
             Connection connection = getConnection();
-
             String query = String.format("INSERT INTO users (id, name, email, password, phone_number, balance, account_type) VALUES ('%s', '%s', '%s', '%s', '%s', %f, '%s');", user.getUserId(), user.getName(), user.getEmail(), user.getPassword(), user.getPhoneNumber(), user.getBalance(), user.getUserType().toString());
             PreparedStatement pstmt = connection.prepareStatement(query);
             pstmt.executeUpdate();
-
         } catch (PSQLException e) {
             System.out.println("Error pada PSQLException pada insertUser(): " + e.getMessage());
-            throw new InvalidAuthException("Gagal autentikasi");
         } catch (Exception e) {
             System.out.println("Terjadi Error pada insertUser(): " + e.getMessage());
         }
@@ -174,13 +171,52 @@ public class DatabaseUtil {
         }
     }
 
+    public static Item getItem(String itemId) {
+        try {
+            Connection connection = getConnection();
+            Statement statement = connection.createStatement();
+            String query = String.format("SELECT * FROM items WHERE id = '%s'", itemId);
+            var resultSet = statement.executeQuery(query);
+            if (resultSet.next()) {
+                String itemName = resultSet.getString("name");
+                String itemDescription = resultSet.getString("description");
+                double basePrice = resultSet.getDouble("base_price");
+                String storeLocationName = resultSet.getString("store_location_name");
+                Array categories = resultSet.getArray("categories");
+                String imageUrl = resultSet.getString("image_url");
+
+
+                if (categories != null) {
+                    String[] javaArray = (String[]) categories.getArray();
+                    ArrayList<String> itemCategories = new ArrayList<String>(Arrays.asList(javaArray));
+                    return new Item(itemId, itemName, itemDescription, basePrice, storeLocationName, itemCategories, imageUrl);
+                } else {
+                    return new Item(itemId, itemName, itemDescription, basePrice, storeLocationName, new ArrayList<String>(), imageUrl);
+                }
+
+
+            }
+            return null;
+        } catch (PSQLException e) {
+            System.out.println("Error PSQLException pada getItem(): " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Terjadi Error pada getItem(): " + e.getMessage());
+        }
+        return null;
+    }
 
     public static void insertItem(Item item) {
         try {
             Connection connection = getConnection();
-            String query = String.format("INSERT INTO items (id, name, description, base_price, store_location_name, categories, image_url) VALUES ('%s', '%s', '%s', %f, '%s', ARRAY%s, '%s');", item.getItemId(), item.getItemName(), item.getDescription(), item.getBasePrice(), item.getStoreLocationName(), item.getCategoriesAsString(), item.getImageUrl());
-            PreparedStatement pstmt = connection.prepareStatement(query);
-            pstmt.executeUpdate();
+            if (item.getCategories().isEmpty()) {
+                String query = String.format("INSERT INTO items (id, name, description, base_price, store_location_name, image_url) VALUES ('%s', '%s', '%s', %f, '%s', '%s');", item.getItemId(), item.getItemName(), item.getDescription(), item.getBasePrice(), item.getStoreLocationName(), item.getImageUrl());
+                PreparedStatement pstmt = connection.prepareStatement(query);
+                pstmt.executeUpdate();
+            } else {
+                String query = String.format("INSERT INTO items (id, name, description, base_price, store_location_name, categories, image_url) VALUES ('%s', '%s', '%s', %f, '%s', ARRAY%s, '%s');", item.getItemId(), item.getItemName(), item.getDescription(), item.getBasePrice(), item.getStoreLocationName(), item.getCategoriesAsString(), item.getImageUrl());
+                PreparedStatement pstmt = connection.prepareStatement(query);
+                pstmt.executeUpdate();
+            }
 
         } catch (PSQLException e) {
             System.out.println("Error pada PSQLException pada insertItem(): " + e.getMessage());
@@ -227,9 +263,15 @@ public class DatabaseUtil {
         try {
             Connection connection = getConnection();
             Statement statement = connection.createStatement();
-            String query = String.format("UPDATE items SET name = '%s', description = '%s', base_price = %f, store_location_name = '%s', categories = ARRAY%s, image_url = '%s' WHERE id = '%s'", itemName, description, basePrice, storeLocationName, categoriesAsString, imageUrl, itemId);
-            PreparedStatement pstmt = connection.prepareStatement(query);
-            int rowsInserted = pstmt.executeUpdate();
+            if (categoriesAsString.isEmpty()) {
+                String query = String.format("UPDATE items SET name = '%s', description = '%s', base_price = %f, store_location_name = '%s', image_url = '%s' WHERE id = '%s'", itemName, description, basePrice, storeLocationName, imageUrl, itemId);
+                PreparedStatement pstmt = connection.prepareStatement(query);
+                pstmt.executeUpdate();
+            } else {
+                String query = String.format("UPDATE items SET name = '%s', description = '%s', base_price = %f, store_location_name = '%s', categories = ARRAY%s, image_url = '%s' WHERE id = '%s'", itemName, description, basePrice, storeLocationName, categoriesAsString, imageUrl, itemId);
+                PreparedStatement pstmt = connection.prepareStatement(query);
+                pstmt.executeUpdate();
+            }
 
 
         } catch (PSQLException e) {

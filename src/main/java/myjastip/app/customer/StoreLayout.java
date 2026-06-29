@@ -47,6 +47,15 @@ public class StoreLayout {
             "-fx-text-fill: #f1f5f0;" +
             "-fx-wrap-text: true;"
         );
+
+        Label itemDescription = new Label(item.getDescription());
+        itemDescription.setWrapText(true);
+        itemDescription.setStyle(
+            "-fx-font-family: 'Inter';" +
+            "-fx-font-size: 12px;" +
+            "-fx-text-fill: #6b8570;"
+        );
+
         Label itemPrice = new Label("Rp" + item.getBasePrice());
         itemPrice.setWrapText(true);
         itemPrice.setStyle(
@@ -111,7 +120,7 @@ public class StoreLayout {
 
         orderButtonBox.getChildren().add(orderButton);
 
-        contentBox.getChildren().addAll(sp, itemName, itemPrice, itemStoreLocation, itemCategories);
+        contentBox.getChildren().addAll(sp, itemName, itemPrice, itemDescription, itemStoreLocation, itemCategories);
         HBox.setHgrow(contentBox, Priority.ALWAYS);
         contentBox.setMaxHeight(Double.MAX_VALUE);
         itemBox.getChildren().addAll(contentBox, orderButtonBox);

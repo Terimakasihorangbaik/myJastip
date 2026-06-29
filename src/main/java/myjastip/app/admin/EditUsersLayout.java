@@ -12,6 +12,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 import myjastip.db.DatabaseUtil;
+import myjastip.storage.Item;
 import myjastip.users.*;
 
 import java.math.BigDecimal;
@@ -74,6 +75,13 @@ public class EditUsersLayout {
                     "-fx-text-fill: #6b8570;"
             );
 
+            Label userTypeLabel = new Label("Jenis User: " + user.getUserType());
+            userTypeLabel.setStyle(
+                    "-fx-font-family: 'Inter';" +
+                    "-fx-font-size: 14px;" +
+                    "-fx-text-fill: #6b8570;"
+            );
+
 
             Button deleteUserButton = new Button("Hapus User");
             deleteUserButton.setMinWidth(200);
@@ -103,6 +111,9 @@ public class EditUsersLayout {
             editUserButton.setMinWidth(200);
 
             editUserButton.setOnAction(e -> {
+                String userId = user.getUserId();
+                User user1 = DatabaseUtil.getUser(userId);
+                if (user1 == null) return;
 
                 Dialog<Pair<String, User>> dialog = new Dialog<>();
                 dialog.setTitle("myJastip Editor");
@@ -123,15 +134,17 @@ public class EditUsersLayout {
                 grid.setVgap(10);
                 grid.setPadding(new Insets(20, 150, 10, 10));
 
+
+
                 TextField usernameInput = new TextField();
                 usernameInput.setPromptText("Username");
-                usernameInput.setText(user.getName());
+                usernameInput.setText(user1.getName());
                 TextField passwordInput = new TextField();
                 passwordInput.setPromptText("Password");
-                passwordInput.setText(user.getPassword());
+                passwordInput.setText(user1.getPassword());
                 TextField emailInput = new TextField();
                 emailInput.setPromptText("Email");
-                emailInput.setText(user.getEmail());
+                emailInput.setText(user1.getEmail());
 
                 UnaryOperator<TextFormatter.Change> integerFilter = change -> {
                     String newText = change.getControlNewText();
@@ -144,7 +157,7 @@ public class EditUsersLayout {
                 TextField phoneNumberInput = new TextField();
                 phoneNumberInput.setPromptText("Nomor Telepon");
                 phoneNumberInput.setTextFormatter(new TextFormatter<>(integerFilter));
-                phoneNumberInput.setText(user.getPhoneNumber());
+                phoneNumberInput.setText(user1.getPhoneNumber());
 
 
                 UnaryOperator<TextFormatter.Change> decimalFilter = change -> {
@@ -159,7 +172,7 @@ public class EditUsersLayout {
                 TextField balanceInput = new TextField();
                 balanceInput.setPromptText("Saldo");
                 balanceInput.setTextFormatter(new TextFormatter<>(decimalFilter));
-                balanceInput.setText(new BigDecimal(String.valueOf(user.getBalance())).toPlainString());
+                balanceInput.setText(new BigDecimal(String.valueOf(user1.getBalance())).toPlainString());
 
 
                 grid.add(new Label("Username:"), 0, 0);
@@ -238,7 +251,7 @@ public class EditUsersLayout {
             HBox controls = new HBox(12);
 
             VBox infoBox = new VBox(12);
-            infoBox.getChildren().addAll(emailLabel, passwordLabel, phoneNumberLabel, balanceLabel);
+            infoBox.getChildren().addAll(emailLabel, passwordLabel, phoneNumberLabel, balanceLabel, userTypeLabel);
 
             HBox rightControl = new HBox(12);
             rightControl.setAlignment(Pos.BOTTOM_RIGHT);
